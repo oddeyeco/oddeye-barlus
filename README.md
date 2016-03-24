@@ -1,5 +1,16 @@
 **Odd Eye Coconut**
 --------------
+War @ update chi anum
+Apache Ant karas buils anes
+
+im mot senc 
+ant -f /home/vahan/NetBeansProjects/oddeye/oddeye-barlus -Dbrowser.context=/home/vahan/NetBeansProjects/oddeye/oddeye-barlus -DforceRedeploy=false -Dnb.internal.action.name=rebuild clean dist
+
+asxatuma
+inc tvuma vor /home/vahan/NetBeansProjects/oddeye/oddeye-barlus poxes qu path-i pti vor ashxati
+
+
+
 
 ![Odd Eye](https://netangels.net/utils/odd_eye.jpg)
 
