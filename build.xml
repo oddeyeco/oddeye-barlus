@@ -7,8 +7,8 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="coconuts" default="default" basedir=".">
-    <description>Builds, tests, and runs the project coconuts.</description>
+<project name="oddeye-barlus" default="default" basedir=".">
+    <description>Builds, tests, and runs the project oddeye-barlus.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
