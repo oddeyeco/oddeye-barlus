@@ -38,35 +38,52 @@ public class write extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Option msgObject = null;
+        String Httpresponse = "";
         String uid = request.getParameter("UUID");
-        String msg = "";
+        String msg = uid;
+        String topic = AppConfiguration.getBrokerTopic();
+        KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);
+//        AppConfiguration.getProducer().send(data);
+        msg = "";
         Map JsonMap = null;
         int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
         if (idx > -1) {
             msg = request.getParameter("data");
+        } else {
+            Httpresponse = "UUID Not exist";
         }
         if (msg != "") {
-            msgObject = JSON.parseFull(msg);
+            msgObject = JSON.parseFull(msg);                        
             if (!msgObject.isEmpty()) {
                 Object maps = msgObject.productElement(0);
                 if (maps instanceof Map) {
                     JsonMap = (Map) maps;
                     if (!JsonMap.get("UUID").isEmpty() & !JsonMap.get("tags").isEmpty() & !JsonMap.get("data").isEmpty()) {
                         if (JsonMap.get("UUID").productElement(0).equals(uid)) {
-                            msg = msg + "00000\n";
-                            String topic = AppConfiguration.getBrokerTopic();
-                            KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);
+//                            msg = msg;
+                            topic = AppConfiguration.getBrokerTopic();
+                            data = new KeyedMessage<String, String>(topic, msg);
                             AppConfiguration.getProducer().send(data);
+                            Httpresponse = "Data Sended";
+                        } else {
+                            Httpresponse = "UUID Not valid";
                         }
+                    } else {
+                        Httpresponse = "JSON Not valid";
                     }
 //               out.println("<h1>" + JsonMap.get("UU").isEmpty()+ "</h1>");
+                } else {
+                    Httpresponse = "Data Not Mapped";
                 }
+            } else {
+                Httpresponse = "Data Not Json";
             }
 //            JsonObject mainObject = parser.parse(msg).getAsJsonObject();
-            msg = msg + "\n";
-            String topic = AppConfiguration.getBrokerTopic();
-            KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);
-            AppConfiguration.getProducer().send(data);
+//            msg = msg + "\n";
+//            topic = AppConfiguration.getBrokerTopic();
+//            data = new KeyedMessage<String, String>(topic, msg);
+//            AppConfiguration.getProducer().send(data);
+
         }
 
         response.setContentType(
@@ -76,7 +93,7 @@ public class write extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet write Data</title>");
+            out.println("<title>Servlet write Data 2</title>");
             out.println("</head>");
             out.println("<body>");
 
@@ -84,8 +101,8 @@ public class write extends HttpServlet {
 //            out.println("<h1>" + maps.getClass()+ "</h1>");
 //            if(JsonMap.get("UUID").productElement(0) == uid)
 //            out.println("<h1>" + JsonMap.get("UUID").productElement(0) + "</h1>");
-            out.println("<h1>" + "Data sended" + "</h1>");
-//            out.println("<h2>" + (JsonMap.get("UUID").productElement(0).equals(uid)) + "</h2>");
+            out.println("<h1>" + Httpresponse + "</h1>");
+//            out.println("<h2>" + JSON.stringVal() + "</h2>");
             out.println("</body>");
             out.println("</html>");
         }
