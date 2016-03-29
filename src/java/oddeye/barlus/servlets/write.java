@@ -19,6 +19,7 @@ import scala.Option;
 import scala.collection.immutable.Map;
 
 import kafka.producer.KeyedMessage;
+import kafka.utils.Json;
 
 /**
  *
@@ -37,23 +38,31 @@ public class write extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         Option msgObject = null;
         String Httpresponse = "";
         String uid = request.getParameter("UUID");
         String msg = uid;
         String topic = AppConfiguration.getBrokerTopic();
         KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);
-//        AppConfiguration.getProducer().send(data);
         msg = "";
         Map JsonMap = null;
-        int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
-        if (idx > -1) {
-            msg = request.getParameter("data");
-        } else {
-            Httpresponse = "UUID Not exist";
+        if (uid != null) {
+            int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
+            if (idx > -1) {
+                msg = request.getParameter("data");
+            } else {
+                Httpresponse = "UUID Not exist";
+            }
+        }
+        else
+        {
+            msg = "";
+            Httpresponse = "UUID is empty";
         }
         if (msg != "") {
-            msgObject = JSON.parseFull(msg);                        
+            msgObject = JSON.parseFull(msg);
+
             if (!msgObject.isEmpty()) {
                 Object maps = msgObject.productElement(0);
                 if (maps instanceof Map) {
@@ -62,7 +71,7 @@ public class write extends HttpServlet {
                         if (JsonMap.get("UUID").productElement(0).equals(uid)) {
 //                            msg = msg;
                             topic = AppConfiguration.getBrokerTopic();
-                            data = new KeyedMessage<String, String>(topic, msg);
+                            data = new KeyedMessage<String, String>(topic, Json.encode(msgObject.productElement(0)));
                             AppConfiguration.getProducer().send(data);
                             Httpresponse = "Data Sended";
                         } else {
@@ -71,19 +80,12 @@ public class write extends HttpServlet {
                     } else {
                         Httpresponse = "JSON Not valid";
                     }
-//               out.println("<h1>" + JsonMap.get("UU").isEmpty()+ "</h1>");
                 } else {
                     Httpresponse = "Data Not Mapped";
                 }
             } else {
                 Httpresponse = "Data Not Json";
             }
-//            JsonObject mainObject = parser.parse(msg).getAsJsonObject();
-//            msg = msg + "\n";
-//            topic = AppConfiguration.getBrokerTopic();
-//            data = new KeyedMessage<String, String>(topic, msg);
-//            AppConfiguration.getProducer().send(data);
-
         }
 
         response.setContentType(
@@ -98,11 +100,8 @@ public class write extends HttpServlet {
             out.println("<body>");
 
             out.println("<h1>Servlet write at " + request.getContextPath() + "</h1>");
-//            out.println("<h1>" + maps.getClass()+ "</h1>");
-//            if(JsonMap.get("UUID").productElement(0) == uid)
-//            out.println("<h1>" + JsonMap.get("UUID").productElement(0) + "</h1>");
             out.println("<h1>" + Httpresponse + "</h1>");
-//            out.println("<h2>" + JSON.stringVal() + "</h2>");
+            
             out.println("</body>");
             out.println("</html>");
         }
