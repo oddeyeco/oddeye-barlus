@@ -15,6 +15,8 @@ import kafka.producer.ProducerConfig;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
 
 /**
  *
@@ -33,16 +35,15 @@ public class AppConfiguration {
 //broker.topic = topic2
 //
 //uid.list = 79f68e1b-ddb3-4065-aec8-bf2eeb9718e8:607984d6-d2ed-4144-936d-5310def8f26e:1719e495-687b-49a1-ac48-75227bcc5ab6
-    
     public static boolean Close() {
-       producer.close();
-       return true;
+        producer.close();
+        return true;
     }
 
     public static boolean Initbyfile(ServletContext cntxt) {
         String sFilePath = "";
         File currentDir = new File(".");
-        
+
         try {
 //            BrokerList = "aaaaaa";
             ServletContext ctx = cntxt;
@@ -65,6 +66,11 @@ public class AppConfiguration {
             props.put("request.required.acks", "1");
             ProducerConfig config = new ProducerConfig(props);
             producer = new Producer<String, String>(config);
+
+            FileHandler fileTxt = new FileHandler("/tmp/oddeye.log", 1000000, 1);
+            fileTxt.setFormatter(new SimpleFormatter());
+            write.log.addHandler(fileTxt);
+
         } catch (Exception e) {
 //        } catch (Exception e) {
             System.out.println("File not found!");
