@@ -97,7 +97,7 @@ public class write extends HttpServlet {
                                 topic = AppConfiguration.getBrokerTopic();
                                 data = new KeyedMessage<String, String>(topic, Json.encode(msgObject.productElement(0)));
 //                            data = new KeyedMessage<String, String>(topic, "****"+msg);
-//                                AppConfiguration.getProducer().send(data);
+                                AppConfiguration.getProducer().send(data);
                                 Httpresponse = "Data Sended";
                             } else {
                                 Httpresponse = "UUID Not valid";
