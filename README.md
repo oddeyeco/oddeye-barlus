@@ -6,8 +6,9 @@
 
 **Install**
 
-	git clone https://connect.netangels.net/pastor/oddeye-barlus.git cd
-	oddeye-barlus mvn package 
+	git clone https://connect.netangels.net/pastor/oddeye-barlus.git
+	cd oddeye-barlus 
+	mvn package 
 	mv oddeye-barlus-XXX-SNAPSHOT.war  /opt/jetty/webapps
 
 **Curl example**
