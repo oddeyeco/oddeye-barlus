@@ -10,6 +10,7 @@
 	cd oddeye-barlus 
 	mvn package 
 	cp oddeye-barlus-XXX-SNAPSHOT.war  /opt/jetty/webapps
+	cp oddeye-barlus-XXX-SNAPSHOT.war  /opt/tomcat/webapps
 
 **Curl example**
 
