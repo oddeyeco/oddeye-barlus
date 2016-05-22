@@ -52,10 +52,6 @@ public class write extends HttpServlet {
      */
     public static Logger log = Logger.getLogger(write.class.getName());
 
-    public static double testNumberParser(String value, Object Obj) {
-        return 15.4;
-    }
-
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Option msgObject = null;
@@ -80,11 +76,13 @@ public class write extends HttpServlet {
                 Httpresponse = "UUID is empty";
             }
             if (msg != "") {                
+                
                 Function1<String, Object> f = new AbstractFunction1<String, Object>() {
                     public Object apply(String s) {
                         return Double.parseDouble(s);
                     }
                 };
+                
                 JSON.globalNumberParser_$eq(f);                
                 msgObject = JSON.parseFull(msg);                
                 if (!msgObject.isEmpty()) {
@@ -125,6 +123,7 @@ public class write extends HttpServlet {
                 out.println("<body>");
                 out.println("<h1>Servlet write at " + request.getContextPath() + "</h1>");
                 out.println("<h1>" + Httpresponse + "</h1>");
+                out.println("<h2>Users count " + AppConfiguration.getUsers().length + "</h3>");
                 out.println("</body>");
                 out.println("</html>");
             }
