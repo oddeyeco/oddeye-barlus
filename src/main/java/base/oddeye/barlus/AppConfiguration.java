@@ -87,7 +87,7 @@ public class AppConfiguration {
             ArrayList<String> UserList = new ArrayList<>();
             for (Result res : scanner1) {
                 UserList.add(new String(res.getRow()));
-                System.out.println(new String(res.getRow()));
+//                System.out.println(new String(res.getRow()));
             }
             scanner1.close();
             table.close();
