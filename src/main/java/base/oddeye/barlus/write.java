@@ -75,16 +75,21 @@ public class write extends HttpServlet {
                 msg = "";
                 Httpresponse = "UUID is empty";
             }
-            if (msg != "") {                
-                
+            if (msg != "") {
+
                 Function1<String, Object> f = new AbstractFunction1<String, Object>() {
                     public Object apply(String s) {
-                        return Double.parseDouble(s);
+                        try {
+                            return Integer.parseInt(s);
+                        } catch (NumberFormatException e) {
+                            return Double.parseDouble(s);
+                        }
+
                     }
                 };
-                
-                JSON.globalNumberParser_$eq(f);                
-                msgObject = JSON.parseFull(msg);                
+
+                JSON.globalNumberParser_$eq(f);
+                msgObject = JSON.parseFull(msg);
                 if (!msgObject.isEmpty()) {
                     Object maps = msgObject.productElement(0);
                     if (maps instanceof Map) {
@@ -94,8 +99,8 @@ public class write extends HttpServlet {
 //                            msg = msg;
                                 topic = AppConfiguration.getBrokerTopic();
                                 data = new KeyedMessage<String, String>(topic, Json.encode(msgObject.productElement(0)));
-//                            data = new KeyedMessage<String, String>(topic, "****"+msg);
-                                AppConfiguration.getProducer().send(data);
+
+//                                AppConfiguration.getProducer().send(data);
                                 Httpresponse = "Data Sended";
                             } else {
                                 Httpresponse = "UUID Not valid";
@@ -114,20 +119,23 @@ public class write extends HttpServlet {
             response.setContentType(
                     "text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
-                /* TODO output your page here. You may use following sample code. */
-                out.println("<!DOCTYPE html>");
-                out.println("<html>");
-                out.println("<head>");
-                out.println("<title>Servlet write Data 2</title>");
-                out.println("</head>");
-                out.println("<body>");
-                out.println("<h1>Servlet write at " + request.getContextPath() + "</h1>");
-                out.println("<h1>" + Httpresponse + "</h1>");
-                out.println("<h2>Users count " + AppConfiguration.getUsers().length + "</h3>");
-                out.println("</body>");
-                out.println("</html>");
+                /* TODO output your page here. You may use following sample code. */                
+                out.println(Httpresponse + "\n\r");
+                out.println("Send message " + data);
+                
+//                out.println("<!DOCTYPE html>");
+//                out.println("<html>");
+//                out.println("<head>");
+//                out.println("<title>Servlet write Data 2</title>");
+//                out.println("</head>");
+//                out.println("<body>");
+//                out.println("<h1>Servlet write at " + request.getContextPath() + "</h1>");
+//                out.println("<h1>" + Httpresponse + "</h1>");
+//                out.println("<h2>Send message " + data + "</h3>");
+//                out.println("</body>");
+//                out.println("</html>");
             }
-        } catch (Exception e) {            
+        } catch (Exception e) {
             log.log(Level.SEVERE, "Exception: ", e);
 //            log.log(Level.SEVERE, "Exception: ", msgObject);
         }
