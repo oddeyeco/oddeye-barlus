@@ -69,7 +69,13 @@ public class write extends HttpServlet {
                 if (idx > -1) {
                     msg = request.getParameter("data");
                 } else {
-                    Httpresponse = "UUID Not exist";
+                    AppConfiguration.initUsers();
+                    idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
+                    if (idx > -1) {
+                        msg = request.getParameter("data");
+                    } else {
+                        Httpresponse = "UUID Not exist User count = " + AppConfiguration.getUsers().length;
+                    }
                 }
             } else {
                 msg = "";
@@ -119,10 +125,10 @@ public class write extends HttpServlet {
             response.setContentType(
                     "text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
-                /* TODO output your page here. You may use following sample code. */                
+                /* TODO output your page here. You may use following sample code. */
                 out.println(Httpresponse + "\n\r");
                 out.println("Send message " + data);
-                
+
 //                out.println("<!DOCTYPE html>");
 //                out.println("<html>");
 //                out.println("<head>");

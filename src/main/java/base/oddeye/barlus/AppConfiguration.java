@@ -60,13 +60,13 @@ public class AppConfiguration {
         return true;
     }
 
-    private static boolean initUsers() {
+    public static boolean initUsers() {
         try {
 
             Configuration config = HBaseConfiguration.create();
             config.clear();
-            config.set("hbase.zookeeper.quorum", "192.168.10.50");
-            config.set("hbase.zookeeper.property.clientPort", "2181");
+            config.set("hbase.zookeeper.quorum", configProps.getProperty("zookeeper.quorum"));
+            config.set("hbase.zookeeper.property.clientPort", configProps.getProperty("zookeeper.clientPort"));
 
             Connection connection = ConnectionFactory.createConnection(config);
             TableName tableName = TableName.valueOf("oddeyeusers");
