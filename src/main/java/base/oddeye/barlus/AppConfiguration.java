@@ -74,9 +74,9 @@ public class AppConfiguration {
 
             SingleColumnValueFilter filter = new SingleColumnValueFilter(
                     Bytes.toBytes("technicalinfo"),
-                    Bytes.toBytes("isactive"),
+                    Bytes.toBytes("active"),
                     CompareFilter.CompareOp.NOT_EQUAL,
-                    new BinaryComparator(Bytes.toBytes(false)));
+                    new BinaryComparator(Bytes.toBytes(Boolean.FALSE)));
             filter.setFilterIfMissing(false);              
             
 //            Filter filter = new ValueFilter(CompareFilter.CompareOp.EQUAL,
