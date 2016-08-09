@@ -46,8 +46,9 @@ public class AppConfiguration {
     private static Properties configProps = new Properties();
     private static String BrokerList = "localhost:9093,localhost:9094";
     private static String BrokerTopic = "oddeyecoconutdefaulttopic";
-    private static String ZookeeperQuorum = "localhost";
-    private static String ZookeeperClientPort = "2181";
+    private static String BrokerTSDBTopic = "oddeyecoconutdefaultTSDBtopic";
+//    private static String ZookeeperQuorum = "localhost";
+//    private static String ZookeeperClientPort = "2181";
 
     private static String[] users;
     private static Producer<String, String> producer;
@@ -79,22 +80,18 @@ public class AppConfiguration {
                     new BinaryComparator(Bytes.toBytes(Boolean.FALSE)));
             filter.setFilterIfMissing(false);              
             
-//            Filter filter = new ValueFilter(CompareFilter.CompareOp.EQUAL,
-//            new BinaryComparator(Bytes.toBytes(true)));
             Scan scan1 = new Scan();
             scan1.setFilter(filter);
             ResultScanner scanner1 = table.getScanner(scan1);
             ArrayList<String> UserList = new ArrayList<>();
             for (Result res : scanner1) {
                 UserList.add(new String(res.getRow()));
-//                System.out.println(new String(res.getRow()));
             }
             scanner1.close();
             table.close();
             connection.close();
             String userlist = configProps.getProperty("uid.list");
             users = UserList.toArray(new String[UserList.size()]);
-//            users = UserList.toArray();
             Arrays.sort(users);
             Arrays.sort(users, Collections.reverseOrder());
         } catch (Exception e) {
@@ -119,9 +116,10 @@ public class AppConfiguration {
             FileInputStream ins = new FileInputStream(sFilePath);
             configProps.load(ins);
             BrokerList = configProps.getProperty("broker.list");
-            BrokerTopic = configProps.getProperty("broker.topic");
-            ZookeeperQuorum = configProps.getProperty("zookeeper.quorum");
-            ZookeeperClientPort = configProps.getProperty("zookeeper.clientPort");
+            BrokerTopic = configProps.getProperty("broker.classic.topic");
+            BrokerTSDBTopic = configProps.getProperty("broker.tsdb.topic");            
+//            ZookeeperQuorum = configProps.getProperty("zookeeper.quorum");
+//            ZookeeperClientPort = configProps.getProperty("zookeeper.clientPort");
 
             initUsers();
 
@@ -201,5 +199,12 @@ public class AppConfiguration {
      */
     public static Producer<String, String> getProducer() {
         return producer;
+    }
+
+    /**
+     * @return the BrokerTSDBTopic
+     */
+    public static String getBrokerTSDBTopic() {
+        return BrokerTSDBTopic;
     }
 }

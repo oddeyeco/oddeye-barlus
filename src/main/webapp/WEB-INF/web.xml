@@ -8,9 +8,25 @@
         <servlet-name>writedata</servlet-name>
         <servlet-class>base.oddeye.barlus.write</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>Putclassic</servlet-name>
+        <servlet-class>base.oddeye.barlus.Putclassic</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PutTSDB</servlet-name>
+        <servlet-class>base.oddeye.barlus.PutTSDB</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>writedata</servlet-name>
         <url-pattern>/write</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Putclassic</servlet-name>
+        <url-pattern>/put/classic</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PutTSDB</servlet-name>
+        <url-pattern>/put/tsdb</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
