@@ -11,13 +11,22 @@ and open the template in the editor.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <div>Use curl for send data curl -i -XPOST 'https://oddeye-barlushost.co/oddeye-barlus/write' --data-binary 'UUID=youuuid&data={JsonData}'</div>
+        <div>Use curl for send data curl -i -XPOST '...oddeye-barlus/put/classic' --data-binary 'UUID=youuuid&data={JsonData}'</div>
         <div>Or Use this test form </div>
-        <form name="Test Form " action="write" method="POST" >
-            <div>Enter value:</div>
+        <form name="Test Form " action="put/classic" method="POST" >
+            <div>Enter value For Barlus clasic:</div>
             <div>UUID <input type="text" name="UUID" value="" /></div>
             <div>Data <textarea name="data"></textarea>
             <input type="submit" value="OK" />
-        </form>        
+        </form>   
+        
+        <div>Use curl for send data curl -i -XPOST '.../oddeye-barlus/put/tsdb' --data-binary '{TSDBJsonData}'</div>
+        <div>Or Use this test form </div>
+        <form name="Test Form " action="put/tsdb" method="POST" >
+            <div>Enter value For Barlus TSDB:</div>            
+            <div>Data <textarea name="data"></textarea>
+            <input type="submit" value="OK" />
+        </form>           
+        
     </body>
 </html>

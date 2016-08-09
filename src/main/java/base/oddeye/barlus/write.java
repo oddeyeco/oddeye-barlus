@@ -41,7 +41,7 @@ import scala.runtime.AbstractFunction1;
  */
 public class write extends HttpServlet {
 
-    /**
+    /**ifif
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
@@ -64,7 +64,7 @@ public class write extends HttpServlet {
             KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);
             msg = "";
             Map JsonMap = null;
-            if (uid != null) {
+            if ((uid != null)&(uid !="")) {
                 int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
                 if (idx > -1) {
                     msg = request.getParameter("data");
