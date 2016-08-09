@@ -93,6 +93,8 @@ public class PutTSDB extends HttpServlet {
                                 topic = AppConfiguration.getBrokerTSDBTopic();
                                 data = new KeyedMessage<String, String>(topic, Json.encode(msgObject.productElement(0)));
 
+                                //TODO fral u sax tageri mech lcnel UUID
+                                
                                 AppConfiguration.getProducer().send(data);
                                 Httpresponse = "Data Sended";
                             } else {
