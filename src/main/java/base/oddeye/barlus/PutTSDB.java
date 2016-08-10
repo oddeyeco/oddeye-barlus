@@ -6,23 +6,20 @@
 package base.oddeye.barlus;
 
 import static base.oddeye.barlus.write.log;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import kafka.producer.KeyedMessage;
-import kafka.utils.Json;
-import scala.Function1;
-import scala.Option;
-import scala.collection.immutable.Map;
-import scala.runtime.AbstractFunction1;
-import scala.util.parsing.json.JSON;
 
 /**
  *
@@ -41,16 +38,17 @@ public class PutTSDB extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Option msgObject = null;
+        JsonArray jsonResult = new JsonArray();
+        JsonParser parser = new JsonParser();
         try {
 
             String Httpresponse = "";
             String uid = request.getParameter("UUID");
             String msg = uid;
-            String topic = AppConfiguration.getBrokerTopic();
+            String topic = AppConfiguration.getBrokerTSDBTopic();
             KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);
             msg = "";
-            Map JsonMap = null;
+//            Map JsonMap = null;
             if ((uid != null) & (uid != "")) {
                 int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
                 if (idx > -1) {
@@ -68,52 +66,38 @@ public class PutTSDB extends HttpServlet {
                 msg = "";
                 Httpresponse = "UUID is empty";
             }
-            if (msg != "") {
+            if (!msg.equals("")) {
+                try {
+                    jsonResult = (JsonArray) parser.parse(msg);
 
-                Function1<String, Object> f = new AbstractFunction1<String, Object>() {
-                    public Object apply(String s) {
-                        try {
-                            return Integer.parseInt(s);
-                        } catch (NumberFormatException e) {
-                            return Double.parseDouble(s);
+                    if (jsonResult.size() > 0) {
+                        for (int i = 0; i < jsonResult.size(); i++) {
+                            JsonElement Metric = jsonResult.get(i);
+                            if (Metric.getAsJsonObject().get("tags") != null) {
+                                Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);
+                            } else {
+                                jsonResult.remove(i);
+                                i--;
+                            }
+
                         }
 
-                    }
-                };
-
-                JSON.globalNumberParser_$eq(f);
-                msgObject = JSON.parseFull(msg);
-                if (!msgObject.isEmpty()) {
-                    Object maps = msgObject.productElement(0);
-                    if (maps instanceof Map) {
-                        JsonMap = (Map) maps;
-                        if (!JsonMap.get("metric").isEmpty() & !JsonMap.get("tags").isEmpty() & !JsonMap.get("timestamp").isEmpty()) {
-                            if (JsonMap.get("UUID").productElement(0).equals(uid)) {
-//                            msg = msg;
-                                topic = AppConfiguration.getBrokerTSDBTopic();
-                                data = new KeyedMessage<String, String>(topic, Json.encode(msgObject.productElement(0)));
-
-                                //TODO fral u sax tageri mech lcnel UUID
-                                
-                                AppConfiguration.getProducer().send(data);
-                                Httpresponse = "Data Sended";
-                            } else {
-                                Httpresponse = "UUID Not valid";
-                            }
-                        } else {
-                            Httpresponse = "JSON Not valid";
+                        if (jsonResult.size() > 0) {
+                            data = new KeyedMessage<String, String>(topic, jsonResult.toString());
+                            AppConfiguration.getProducer().send(data);
                         }
                     } else {
-                        Httpresponse = "Data Not Mapped";
+                        Httpresponse = "Not valid json Array";
                     }
-                } else {
-                    Httpresponse = "Data Not Json";
+                } catch (Exception e) {
+                    Httpresponse = "Not json Array";
                 }
+
             }
 
             response.setContentType(
                     "text/html;charset=UTF-8");
-            try (PrintWriter out = response.getWriter()) {                
+            try (PrintWriter out = response.getWriter()) {
                 out.println(Httpresponse + "\n\r");
                 out.println("Send message " + data);
             }

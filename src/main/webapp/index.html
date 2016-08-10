@@ -17,16 +17,16 @@ and open the template in the editor.
             <div>Enter value For Barlus clasic:</div>
             <div>UUID <input type="text" name="UUID" value="" /></div>
             <div>Data <textarea name="data"></textarea>
-            <input type="submit" value="OK" />
+            <input type="submit" value="SEND" />
         </form>   
         
-        <div>Use curl for send data curl -i -XPOST '.../oddeye-barlus/put/tsdb' --data-binary '{TSDBJsonData}'</div>
+        <div>Use curl for send data curl -i -XPOST '.../oddeye-barlus/put/tsdb' --data-binary 'UUID=youuuid&data=[{TSDBJsonData}]'</div>
         <div>Or Use this test form </div>
         <form name="Test Form " action="put/tsdb" method="POST">
             <div>Enter value For Barlus TSDB:</div>            
             <div>UUID <input type="text" name="UUID" value="" /></div>
             <div>Data <textarea name="data"></textarea>
-            <input type="submit" value="OK" />
+            <input type="submit" value="SEND" />
         </form>           
 
     </body>

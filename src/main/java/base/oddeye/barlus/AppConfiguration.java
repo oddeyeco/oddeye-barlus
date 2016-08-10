@@ -102,13 +102,13 @@ public class AppConfiguration {
     }
 
     public static boolean Initbyfile(ServletContext cntxt) {
-        String sFilePath = "";
+        String sFilePath;
         File currentDir = new File(".");
 
         try {
 //            BrokerList = "aaaaaa";
             ServletContext ctx = cntxt;
-            String path = null;
+            String path;
             String p = ctx.getResource("/").getPath();
             path = p.substring(0, p.lastIndexOf("/"));
             path = path.substring(path.lastIndexOf("/") + 1);

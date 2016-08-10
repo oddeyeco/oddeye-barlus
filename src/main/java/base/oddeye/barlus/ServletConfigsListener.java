@@ -22,11 +22,11 @@ public class ServletConfigsListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {        
         //System.out.println("ServletContextListener started");
         ServletContext cntxt = sce.getServletContext();
-//        AppConfiguration.Initbyfile(cntxt);        
+        AppConfiguration.Initbyfile(cntxt);        
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-//       AppConfiguration.Close();        
+       AppConfiguration.Close();        
     }
 }
