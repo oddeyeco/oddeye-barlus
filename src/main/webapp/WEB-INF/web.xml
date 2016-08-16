@@ -4,6 +4,10 @@
         <description>ServletContextListener</description>
         <listener-class>base.oddeye.barlus.ServletConfigsListener</listener-class>
     </listener>
+    <context-param>
+        <param-name>log4j-config-location</param-name>
+        <param-value>WEB-INF/log4j.properties</param-value>
+    </context-param>    
     <servlet>
         <servlet-name>writedata</servlet-name>
         <servlet-class>base.oddeye.barlus.write</servlet-class>
