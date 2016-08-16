@@ -5,7 +5,6 @@
  */
 package base.oddeye.barlus;
 
-import static base.oddeye.barlus.write.log;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -14,6 +13,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +26,9 @@ import kafka.producer.KeyedMessage;
  */
 public class PutTSDB extends HttpServlet {
 
+    
+    public static Logger logger = Logger.getLogger(write.class.getName());
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -34,23 +37,24 @@ public class PutTSDB extends HttpServlet {
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
-     */
+     */        
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        log.log(Level.INFO, "Start servlet TSDB process request: "+request.getSession().getId());
-        JsonArray jsonResult = new JsonArray();
+        
+        PutTSDB.logger.log(Level.INFO, "Start servlet TSDB process request: {0}", request.getSession().getId());
+        JsonArray jsonResult;
         JsonParser parser = new JsonParser();
         try {
             String Httpresponse = "";
             String uid = request.getParameter("UUID");
-            String msg = uid;
+            String msg = "";
             String topic = AppConfiguration.getBrokerTSDBTopic();
-//             KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);
-            msg = "";
+//             KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);            
 //            Map JsonMap = null;
-            if ((uid != null) & (uid != "")) {
+            if ((uid != null) & (!uid.equals(""))) {
+                
                 int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
+           
                 if (idx > -1) {
                     msg = request.getParameter("data");
                 } else {
@@ -60,14 +64,14 @@ public class PutTSDB extends HttpServlet {
                         msg = request.getParameter("data");
                     } else {
 //                        Httpresponse = "UUID Not exist User count = " + AppConfiguration.getUsers().length;
-                        log.log(Level.WARNING, "NOT VALID UUID:"+request.getSession().getId());
+                        PutTSDB.logger.log(Level.WARNING, "NOT VALID UUID:{0}", request.getSession().getId());
                     }
                 }
             } else {
                 msg = "";                
-                log.log(Level.WARNING, "EMPTY UUID:"+request.getSession().getId());
+                PutTSDB.logger.log(Level.WARNING, "EMPTY UUID:{0}", request.getSession().getId());
             }
-            log.log(Level.INFO, "Check UUID:"+request.getSession().getId());
+            PutTSDB.logger.log(Level.INFO, "Check UUID:{0}", request.getSession().getId());
             
             if (!msg.equals("")) {
                 try {
@@ -86,16 +90,16 @@ public class PutTSDB extends HttpServlet {
                         }
 
                         if (jsonResult.size() > 0) {                            
-                            final KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, jsonResult.toString());
+                            final KeyedMessage<String, String> data = new KeyedMessage<>(topic, jsonResult.toString());
                             AppConfiguration.getProducer().send(data);
                         }
                     } else {
 //                        Httpresponse = "Not valid json Array";
-                        log.log(Level.WARNING, "NOT VALID JSON Array:"+request.getSession().getId());
+                        PutTSDB.logger.log(Level.WARNING, "NOT VALID JSON Array:{0}", request.getSession().getId());
                     }
                 } catch (Exception e) {
 //                    Httpresponse = "Not json Array";
-                    log.log(Level.WARNING, "NOT JSON Array:"+request.getSession().getId());
+                    PutTSDB.logger.log(Level.WARNING, "NOT JSON Array:{0}", request.getSession().getId());
                 }
 
             }
@@ -107,7 +111,7 @@ public class PutTSDB extends HttpServlet {
                 out.println("Send message OK");
             }
         } catch (Exception e) {
-            log.log(Level.SEVERE, "Exception: ", e);
+            this.logger.log(Level.SEVERE, "Exception: ", e);
         }
     }
 
