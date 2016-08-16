@@ -27,7 +27,7 @@ import kafka.producer.KeyedMessage;
 public class PutTSDB extends HttpServlet {
 
     
-    public static Logger logger = Logger.getLogger(write.class.getName());
+    public static final Logger logger = Logger.getLogger(write.class.getName());
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
