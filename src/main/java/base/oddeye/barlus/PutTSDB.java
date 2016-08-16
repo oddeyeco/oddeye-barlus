@@ -111,7 +111,7 @@ public class PutTSDB extends HttpServlet {
                 out.println("Send message OK");
             }
         } catch (Exception e) {
-            this.logger.log(Level.SEVERE, "Exception: ", e);
+            PutTSDB.logger.log(Level.SEVERE, "Exception: ", e);
         }
     }
 
