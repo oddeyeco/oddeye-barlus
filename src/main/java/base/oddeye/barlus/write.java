@@ -11,27 +11,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.ExecutionException;
 import scala.util.parsing.json.JSON;
 
-import scala.util.parsing.json.JSONObject;
 import scala.Option;
 import scala.collection.immutable.Map;
 
-import kafka.producer.KeyedMessage;
 import kafka.utils.Json;
-
-import java.io.File;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.util.logging.FileHandler;
-import java.util.logging.SimpleFormatter;
-import scala.Function1;
-
+import org.apache.kafka.clients.producer.ProducerRecord;
 import scala.Function1;
 import scala.runtime.AbstractFunction1;
 
@@ -61,7 +52,7 @@ public class write extends HttpServlet {
             String uid = request.getParameter("UUID");
             String msg = uid;
             String topic = AppConfiguration.getBrokerTopic();
-            KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);
+
             msg = "";
             Map JsonMap = null;
             if ((uid != null)&(uid !="")) {
@@ -103,8 +94,8 @@ public class write extends HttpServlet {
                         if (!JsonMap.get("UUID").isEmpty() & !JsonMap.get("tags").isEmpty() & !JsonMap.get("data").isEmpty()) {
                             if (JsonMap.get("UUID").productElement(0).equals(uid)) {
 //                            msg = msg;
-                                topic = AppConfiguration.getBrokerTopic();
-                                data = new KeyedMessage<String, String>(topic, Json.encode(msgObject.productElement(0)));
+                                topic = AppConfiguration.getBrokerTopic();                                
+                                final ProducerRecord<String, String> data = new ProducerRecord<String, String>(topic, Json.encode(msgObject.productElement(0)));
 
                                 AppConfiguration.getProducer().send(data);
                                 Httpresponse = "Data Sended";
@@ -127,7 +118,7 @@ public class write extends HttpServlet {
             try (PrintWriter out = response.getWriter()) {
                 /* TODO output your page here. You may use following sample code. */
                 out.println(Httpresponse + "\n\r");
-                out.println("Send message " + data);
+//                out.println("Send message " + data);
 
 //                out.println("<!DOCTYPE html>");
 //                out.println("<html>");

@@ -15,8 +15,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import kafka.producer.KeyedMessage;
 import kafka.utils.Json;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import scala.Function1;
 import scala.Option;
 import scala.collection.immutable.Map;
@@ -38,7 +38,6 @@ public class Putclassic extends HttpServlet {
             String uid = request.getParameter("UUID");
             String msg = uid;
             String topic = AppConfiguration.getBrokerTopic();
-            KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);
             msg = "";
             Map JsonMap = null;
             if ((uid != null)&(uid !="")) {
@@ -80,9 +79,8 @@ public class Putclassic extends HttpServlet {
                         if (!JsonMap.get("UUID").isEmpty() & !JsonMap.get("tags").isEmpty() & !JsonMap.get("data").isEmpty()) {
                             if (JsonMap.get("UUID").productElement(0).equals(uid)) {
 //                            msg = msg;
-                                topic = AppConfiguration.getBrokerTopic();
-                                data = new KeyedMessage<String, String>(topic, Json.encode(msgObject.productElement(0)));
-
+                                topic = AppConfiguration.getBrokerTopic();                                
+                                final ProducerRecord<String, String> data = new ProducerRecord<String, String>(topic, Json.encode(msgObject.productElement(0)));
                                 AppConfiguration.getProducer().send(data);
                                 Httpresponse = "Data Sended";
                             } else {
@@ -104,7 +102,7 @@ public class Putclassic extends HttpServlet {
             try (PrintWriter out = response.getWriter()) {
                 /* TODO output your page here. You may use following sample code. */
                 out.println(Httpresponse + "\n\r");
-                out.println("Send message " + data);
+//                out.println("Send message " + data);
 
 //                out.println("<!DOCTYPE html>");
 //                out.println("<html>");

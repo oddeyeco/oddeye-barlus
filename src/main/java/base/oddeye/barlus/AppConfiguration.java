@@ -10,8 +10,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import javax.servlet.ServletContext;
-import kafka.javaapi.producer.Producer;
-import kafka.producer.ProducerConfig;
+//import kafka.javaapi.producer.Producer;
+//import kafka.producer.ProducerConfig;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,6 +31,8 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
 
 
 /**
@@ -126,8 +128,9 @@ public class AppConfiguration {
             props.put("metadata.broker.list", AppConfiguration.getBrokerList());
             props.put("serializer.class", "kafka.serializer.StringEncoder");
             props.put("request.required.acks", "1");
-            ProducerConfig config = new ProducerConfig(props);
-            producer = new Producer<String, String>(config);
+//            ProducerConfig config = new ProducerConfig(props);
+//            producer = new KafkaProducer<>(props);
+            producer = new KafkaProducer<>(props);
 
             FileHandler fileTxt = new FileHandler("/tmp/oddeye.log", 1000000, 1);
             fileTxt.setFormatter(new SimpleFormatter());

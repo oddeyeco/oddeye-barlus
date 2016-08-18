@@ -8,20 +8,17 @@ package base.oddeye.barlus;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import org.apache.log4j.Logger;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import kafka.producer.KeyedMessage;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Level;
-import org.apache.log4j.PropertyConfigurator;
 
 /**
  *
@@ -94,7 +91,8 @@ public class PutTSDB extends HttpServlet {
                         }
 
                         if (jsonResult.size() > 0) {
-                            final KeyedMessage<String, String> data = new KeyedMessage<>(topic, jsonResult.toString());
+//                            final KeyedMessage<String, String> data = new KeyedMessage<>(topic, jsonResult.toString());
+                            final ProducerRecord<String, String> data = new ProducerRecord<String, String>(topic, jsonResult.toString());
                             PutTSDB.logger.log(Level.INFO, "Prepred data to send:"+ request.getSession().getId());                            
                             AppConfiguration.getProducer().send(data);
                             PutTSDB.logger.log(Level.INFO, "Prepred data send:"+ request.getSession().getId());
