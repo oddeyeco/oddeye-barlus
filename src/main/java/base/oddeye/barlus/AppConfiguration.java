@@ -35,7 +35,6 @@ import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
-
 /**
  *
  * @author vahan
@@ -116,7 +115,7 @@ public class AppConfiguration {
             configProps.load(ins);
             BrokerList = configProps.getProperty("broker.list");
             BrokerTopic = configProps.getProperty("broker.classic.topic");
-            BrokerTSDBTopic = configProps.getProperty("broker.tsdb.topic");            
+            BrokerTSDBTopic = configProps.getProperty("broker.tsdb.topic");
 //            ZookeeperQuorum = configProps.getProperty("zookeeper.quorum");
 //            ZookeeperClientPort = configProps.getProperty("zookeeper.clientPort");
 
@@ -124,9 +123,19 @@ public class AppConfiguration {
 
             // Init kafka Produser
             Properties props = new Properties();
-            props.put("metadata.broker.list", AppConfiguration.getBrokerList());
-            props.put("serializer.class", "kafka.serializer.StringEncoder");
-            props.put("request.required.acks", "1");
+//            props.put("metadata.broker.list", AppConfiguration.getBrokerList());
+//            props.put("serializer.class", "kafka.serializer.StringEncoder");
+//            props.put("request.required.acks", "1");
+            
+            props.put("bootstrap.servers", AppConfiguration.getBrokerList());
+            props.put("acks", "all");
+            props.put("retries", 0);
+            props.put("batch.size", 16384);
+            props.put("linger.ms", 1);
+            props.put("buffer.memory", 33554432);
+            props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+            props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
 //            ProducerConfig config = new ProducerConfig(props);
 //            producer = new KafkaProducer<>(props);
             producer = new KafkaProducer<>(props);
