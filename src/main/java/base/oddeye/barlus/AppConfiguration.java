@@ -8,6 +8,7 @@ package base.oddeye.barlus;
 import java.util.Properties;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import javax.servlet.ServletContext;
 //import kafka.javaapi.producer.Producer;
@@ -42,8 +43,8 @@ import org.apache.kafka.clients.producer.Producer;
 public class AppConfiguration {
 
     private static final String sFileName = "config.properties";
-    private static String sDirSeparator = System.getProperty("file.separator");
-    private static Properties configProps = new Properties();
+    private static final String sDirSeparator = System.getProperty("file.separator");
+    private static final Properties configProps = new Properties();
     private static String BrokerList = "localhost:9093,localhost:9094";
     private static String BrokerTopic = "oddeyecoconutdefaulttopic";
     private static String BrokerTSDBTopic = "oddeyecoconutdefaultTSDBtopic";
@@ -69,33 +70,31 @@ public class AppConfiguration {
             config.set("hbase.zookeeper.quorum", configProps.getProperty("zookeeper.quorum"));
             config.set("hbase.zookeeper.property.clientPort", configProps.getProperty("zookeeper.clientPort"));
 
-            Connection connection = ConnectionFactory.createConnection(config);
-            TableName tableName = TableName.valueOf("oddeyeusers");
-            Table table = connection.getTable(tableName);
-
-            SingleColumnValueFilter filter = new SingleColumnValueFilter(
-                    Bytes.toBytes("technicalinfo"),
-                    Bytes.toBytes("active"),
-                    CompareFilter.CompareOp.NOT_EQUAL,
-                    new BinaryComparator(Bytes.toBytes(Boolean.FALSE)));
-            filter.setFilterIfMissing(false);              
-            
-            Scan scan1 = new Scan();
-            scan1.setFilter(filter);
-            ResultScanner scanner1 = table.getScanner(scan1);
-            ArrayList<String> UserList = new ArrayList<>();
-            for (Result res : scanner1) {
-                UserList.add(new String(res.getRow()));
+            ArrayList<String> UserList;
+            try (Connection connection = ConnectionFactory.createConnection(config)) {
+                TableName tableName = TableName.valueOf("oddeyeusers");
+                try (Table table = connection.getTable(tableName)) {
+                    SingleColumnValueFilter filter = new SingleColumnValueFilter(
+                            Bytes.toBytes("technicalinfo"),
+                            Bytes.toBytes("active"),
+                            CompareFilter.CompareOp.NOT_EQUAL,
+                            new BinaryComparator(Bytes.toBytes(Boolean.FALSE)));
+                    filter.setFilterIfMissing(false);
+                    Scan scan1 = new Scan();
+                    scan1.setFilter(filter);
+                    try (ResultScanner scanner1 = table.getScanner(scan1)) {
+                        UserList = new ArrayList<>();
+                        for (Result res : scanner1) {
+                            UserList.add(new String(res.getRow()));
+                        }
+                    }
+                }
             }
-            scanner1.close();
-            table.close();
-            connection.close();
             String userlist = configProps.getProperty("uid.list");
             users = UserList.toArray(new String[UserList.size()]);
             Arrays.sort(users);
             Arrays.sort(users, Collections.reverseOrder());
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
         return true;
@@ -103,7 +102,7 @@ public class AppConfiguration {
 
     public static boolean Initbyfile(ServletContext cntxt) {
         String sFilePath;
-        File currentDir = new File(".");
+//        File currentDir = new File(".");
 
         try {
 //            BrokerList = "aaaaaa";
@@ -111,7 +110,7 @@ public class AppConfiguration {
             String path;
             String p = ctx.getResource("/").getPath();
             path = p.substring(0, p.lastIndexOf("/"));
-            path = path.substring(path.lastIndexOf("/") + 1);
+//            path = path.substring(path.lastIndexOf("/") + 1);
             sFilePath = p + sFileName;
             FileInputStream ins = new FileInputStream(sFilePath);
             configProps.load(ins);
@@ -136,10 +135,9 @@ public class AppConfiguration {
             fileTxt.setFormatter(new SimpleFormatter());
             write.log.addHandler(fileTxt);
 
-        } catch (Exception e) {
+        } catch (IOException | SecurityException e) {
 //        } catch (Exception e) {
             System.out.println("File not found!");
-            e.printStackTrace();
 
         }
         return true;
