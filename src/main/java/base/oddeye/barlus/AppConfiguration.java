@@ -6,7 +6,6 @@
 package base.oddeye.barlus;
 
 import java.util.Properties;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -88,8 +87,7 @@ public class AppConfiguration {
                         }
                     }
                 }
-            }
-            String userlist = configProps.getProperty("uid.list");
+            }            
             users = UserList.toArray(new String[UserList.size()]);
             Arrays.sort(users);
             Arrays.sort(users, Collections.reverseOrder());

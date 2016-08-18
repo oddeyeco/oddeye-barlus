@@ -32,6 +32,7 @@ import scala.runtime.AbstractFunction1;
  */
 public class write extends HttpServlet {
 
+    public static final Logger log = Logger.getLogger(write.class.getName());
     /**ifif
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -40,22 +41,20 @@ public class write extends HttpServlet {
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
-     */
-    public static Logger log = Logger.getLogger(write.class.getName());
-
+     */    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Option msgObject = null;
+        Option msgObject;
         try {
 
             String Httpresponse = "";
             String uid = request.getParameter("UUID");
-            String msg = uid;
-            String topic = AppConfiguration.getBrokerTopic();
+            String msg;
+            String topic;
 
             msg = "";
-            Map JsonMap = null;
-            if ((uid != null)&(uid !="")) {
+            Map JsonMap;
+            if ((uid != null)&(!"".equals(uid))) {
                 int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
                 if (idx > -1) {
                     msg = request.getParameter("data");
@@ -72,9 +71,10 @@ public class write extends HttpServlet {
                 msg = "";
                 Httpresponse = "UUID is empty";
             }
-            if (msg != "") {
+            if (!"".equals(msg)) {
 
                 Function1<String, Object> f = new AbstractFunction1<String, Object>() {
+                    @Override
                     public Object apply(String s) {
                         try {
                             return Integer.parseInt(s);
@@ -95,7 +95,7 @@ public class write extends HttpServlet {
                             if (JsonMap.get("UUID").productElement(0).equals(uid)) {
 //                            msg = msg;
                                 topic = AppConfiguration.getBrokerTopic();                                
-                                final ProducerRecord<String, String> data = new ProducerRecord<String, String>(topic, Json.encode(msgObject.productElement(0)));
+                                final ProducerRecord<String, String> data = new ProducerRecord<>(topic, Json.encode(msgObject.productElement(0)));
 
                                 AppConfiguration.getProducer().send(data);
                                 Httpresponse = "Data Sended";
