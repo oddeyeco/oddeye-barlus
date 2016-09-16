@@ -33,6 +33,7 @@ import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  *
@@ -46,8 +47,6 @@ public class AppConfiguration {
     private static String BrokerList = "localhost:9093,localhost:9094";
     private static String BrokerTopic = "oddeyecoconutdefaulttopic";
     private static String BrokerTSDBTopic = "oddeyecoconutdefaultTSDBtopic";
-//    private static String ZookeeperQuorum = "localhost";
-//    private static String ZookeeperClientPort = "2181";
 
     private static String[] users;
     private static Producer<String, String> producer;
@@ -98,33 +97,28 @@ public class AppConfiguration {
     }
 
     public static boolean Initbyfile(ServletContext cntxt) {
-        String sFilePath;
-//        File currentDir = new File(".");
+        String sFilePath;        
+        // initialize log4j here        
+        String log4jConfigFile = cntxt.getInitParameter("log4j-config-location");
+        String fullPath = cntxt.getRealPath("") + log4jConfigFile;
+         
+        PropertyConfigurator.configure(fullPath);    
 
         try {
-//            BrokerList = "aaaaaa";
             ServletContext ctx = cntxt;
             String path;
             String p = ctx.getResource("/").getPath();
             path = p.substring(0, p.lastIndexOf("/"));
-//            path = path.substring(path.lastIndexOf("/") + 1);
             sFilePath = p + sFileName;
             FileInputStream ins = new FileInputStream(sFilePath);
             configProps.load(ins);
             BrokerList = configProps.getProperty("broker.list");
             BrokerTopic = configProps.getProperty("broker.classic.topic");
             BrokerTSDBTopic = configProps.getProperty("broker.tsdb.topic");
-//            ZookeeperQuorum = configProps.getProperty("zookeeper.quorum");
-//            ZookeeperClientPort = configProps.getProperty("zookeeper.clientPort");
-
             initUsers();
 
             // Init kafka Produser
-            Properties props = new Properties();
-//            props.put("metadata.broker.list", AppConfiguration.getBrokerList());
-//            props.put("serializer.class", "kafka.serializer.StringEncoder");
-//            props.put("request.required.acks", "1");
-            
+            Properties props = new Properties();            
             props.put("bootstrap.servers", AppConfiguration.getBrokerList());
             props.put("acks", "all");
             props.put("retries", 0);
@@ -134,13 +128,11 @@ public class AppConfiguration {
             props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
             props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-//            ProducerConfig config = new ProducerConfig(props);
-//            producer = new KafkaProducer<>(props);
             producer = new KafkaProducer<>(props);
 
-            FileHandler fileTxt = new FileHandler("/tmp/oddeye.log", 1000000, 1);
-            fileTxt.setFormatter(new SimpleFormatter());
-            write.log.addHandler(fileTxt);
+//            FileHandler fileTxt = new FileHandler("/tmp/oddeye.log", 1000000, 1);
+//            fileTxt.setFormatter(new SimpleFormatter());
+//            write.log.addHandler(fileTxt);
 
         } catch (IOException | SecurityException e) {
 //        } catch (Exception e) {

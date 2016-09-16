@@ -8,7 +8,6 @@ package base.oddeye.barlus;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletContext;
-import org.apache.log4j.PropertyConfigurator;
 
 /**
  * Web application lifecycle listener.
@@ -22,15 +21,7 @@ public class ServletConfigsListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {        
         //System.out.println("ServletContextListener started");
         ServletContext cntxt = sce.getServletContext();
-        AppConfiguration.Initbyfile(cntxt);   
-        
-        // initialize log4j here
-        
-        String log4jConfigFile = cntxt.getInitParameter("log4j-config-location");
-        String fullPath = cntxt.getRealPath("") + log4jConfigFile;
-         
-        PropertyConfigurator.configure(fullPath);              
-        
+        AppConfiguration.Initbyfile(cntxt);                     
     }
 
     @Override
