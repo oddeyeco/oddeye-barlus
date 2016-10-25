@@ -80,11 +80,41 @@ public class PutTSDB extends HttpServlet {
                     if (jsonResult.size() > 0) {
                         for (int i = 0; i < jsonResult.size(); i++) {
                             JsonElement Metric = jsonResult.get(i);
-                            if (Metric.getAsJsonObject().get("tags") != null) {
+                            if (Metric.getAsJsonObject().get("tags") != null) {                                
+                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("host") == null)
+                                {
+                                    PutTSDB.logger.log(Level.WARN, "host not exist in input "+msg);
+                                }                                
+                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("type") == null)
+                                {
+                                    PutTSDB.logger.log(Level.WARN, "type not exist in input "+msg);
+                                }                                
+                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("alert_level") == null)
+                                {
+                                    PutTSDB.logger.log(Level.WARN, "alert_level not exist in input "+msg);
+                                }                                
+                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("group") == null)
+                                {
+                                    PutTSDB.logger.log(Level.WARN, "group not exist in input "+msg);
+                                }                                
+                                if (Metric.getAsJsonObject().get("timestamp") == null)
+                                {
+                                    PutTSDB.logger.log(Level.WARN, "timestamp not exist in input "+msg);
+                                }                                                                
+                                
+                                if (Metric.getAsJsonObject().get("metric") == null)
+                                {
+                                    PutTSDB.logger.log(Level.WARN, "metric not exist in input "+msg);
+                                }                                                                
+                                if (Metric.getAsJsonObject().get("value") == null)
+                                {
+                                    PutTSDB.logger.log(Level.WARN, "value not exist in input "+msg);
+                                }                                                                                                
                                 Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);
+                                
                             } else {
                                 jsonResult.remove(i);
-                                PutTSDB.logger.log(Level.ERROR, "REMOVE FRON JSON:"+request.getSession().getId());
+                                PutTSDB.logger.log(Level.ERROR, "tags not exist in input "+msg);
                                 i--;
                             }
 

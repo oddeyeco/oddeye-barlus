@@ -15,8 +15,6 @@ import javax.servlet.ServletContext;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.logging.FileHandler;
-import java.util.logging.SimpleFormatter;
 
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.conf.Configuration;
