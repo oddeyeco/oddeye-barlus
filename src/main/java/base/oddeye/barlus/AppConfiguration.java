@@ -5,6 +5,7 @@
  */
 package base.oddeye.barlus;
 
+import co.oddeye.core.globalFunctions;
 import java.util.Properties;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,6 +32,7 @@ import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 /**
@@ -39,9 +41,11 @@ import org.apache.log4j.PropertyConfigurator;
  */
 public class AppConfiguration {
 
-    private static final String sFileName = "config.properties";
-    private static final String sDirSeparator = System.getProperty("file.separator");
-    private static final Properties configProps = new Properties();
+    public static final Logger LOGGER = Logger.getLogger(AppConfiguration.class.getName());
+
+    private static final String CONFIG_FILE = "config.properties";
+    private static final String DIR_SEPARATOR = System.getProperty("file.separator");
+    private static final Properties PROPS_CONFIGS = new Properties();
     private static String BrokerList = "localhost:9093,localhost:9094";
     private static String BrokerTopic = "oddeyecoconutdefaulttopic";
     private static String BrokerTSDBTopic = "oddeyecoconutdefaultTSDBtopic";
@@ -58,65 +62,72 @@ public class AppConfiguration {
     }
 
     public static boolean initUsers() {
-        try {
-
-            Configuration config = HBaseConfiguration.create();
-            config.clear();
-            config.set("hbase.zookeeper.quorum", configProps.getProperty("zookeeper.quorum"));
-            config.set("hbase.zookeeper.property.clientPort", configProps.getProperty("zookeeper.clientPort"));
-
-            ArrayList<String> UserList;
-            try (Connection connection = ConnectionFactory.createConnection(config)) {
-                TableName tableName = TableName.valueOf("oddeyeusers");
-                try (Table table = connection.getTable(tableName)) {
-                    SingleColumnValueFilter filter = new SingleColumnValueFilter(
-                            Bytes.toBytes("technicalinfo"),
-                            Bytes.toBytes("active"),
-                            CompareFilter.CompareOp.NOT_EQUAL,
-                            new BinaryComparator(Bytes.toBytes(Boolean.FALSE)));
-                    filter.setFilterIfMissing(false);
-                    Scan scan1 = new Scan();
-                    scan1.setFilter(filter);
-                    try (ResultScanner scanner1 = table.getScanner(scan1)) {
-                        UserList = new ArrayList<>();
-                        for (Result res : scanner1) {
-                            UserList.add(new String(res.getRow()));
-                        }
+        Configuration config = HBaseConfiguration.create();
+        config.clear();
+        config.set("hbase.zookeeper.quorum", PROPS_CONFIGS.getProperty("zookeeper.quorum"));
+        config.set("hbase.zookeeper.property.clientPort", PROPS_CONFIGS.getProperty("zookeeper.clientPort"));
+        ArrayList<String> UserList;
+        UserList = new ArrayList<>();
+        try (Connection connection = ConnectionFactory.createConnection(config)) {
+            TableName tableName = TableName.valueOf("oddeyeusers");
+            try (Table table = connection.getTable(tableName)) {
+                SingleColumnValueFilter filter = new SingleColumnValueFilter(
+                        Bytes.toBytes("technicalinfo"),
+                        Bytes.toBytes("active"),
+                        CompareFilter.CompareOp.NOT_EQUAL,
+                        new BinaryComparator(Bytes.toBytes(Boolean.FALSE)));
+                filter.setFilterIfMissing(false);
+                Scan scan1 = new Scan();
+                scan1.setFilter(filter);
+                try (ResultScanner scanner1 = table.getScanner(scan1)) {
+                    for (Result res : scanner1) {
+                        UserList.add(new String(res.getRow()));
                     }
+                } catch (Exception e) {
+                    LOGGER.error("ERROR In get Scanner " + globalFunctions.stackTrace(e));
+                    return false;
                 }
-            }            
-            users = UserList.toArray(new String[UserList.size()]);
-            Arrays.sort(users);
-            Arrays.sort(users, Collections.reverseOrder());
+            } catch (Exception e) {
+                LOGGER.error("ERROR In get Table " + globalFunctions.stackTrace(e));
+                return false;
+            }
         } catch (Exception e) {
+            LOGGER.error("ERROR In Create Connection " + globalFunctions.stackTrace(e));
             return false;
         }
+        users = UserList.toArray(new String[UserList.size()]);
+        Arrays.sort(users);
+        Arrays.sort(users, Collections.reverseOrder());
         return true;
     }
 
     public static boolean Initbyfile(ServletContext cntxt) {
-        String sFilePath;        
+        String sFilePath;
         // initialize log4j here        
         String log4jConfigFile = cntxt.getInitParameter("log4j-config-location");
         String fullPath = cntxt.getRealPath("") + log4jConfigFile;
-         
-        PropertyConfigurator.configure(fullPath);    
+
+        PropertyConfigurator.configure(fullPath);
 
         try {
             ServletContext ctx = cntxt;
             String path;
             String p = ctx.getResource("/").getPath();
             path = p.substring(0, p.lastIndexOf("/"));
-            sFilePath = p + sFileName;
+            sFilePath = p + CONFIG_FILE;
             FileInputStream ins = new FileInputStream(sFilePath);
-            configProps.load(ins);
-            BrokerList = configProps.getProperty("broker.list");
-            BrokerTopic = configProps.getProperty("broker.classic.topic");
-            BrokerTSDBTopic = configProps.getProperty("broker.tsdb.topic");
-            initUsers();
+            PROPS_CONFIGS.load(ins);
+            BrokerList = PROPS_CONFIGS.getProperty("broker.list");
+            BrokerTopic = PROPS_CONFIGS.getProperty("broker.classic.topic");
+            BrokerTSDBTopic = PROPS_CONFIGS.getProperty("broker.tsdb.topic");
+            boolean readusers = initUsers();
 
             // Init kafka Produser
-            Properties props = new Properties();            
+            if (!readusers)
+            {
+                return false;
+            }
+            Properties props = new Properties();
             props.put("bootstrap.servers", AppConfiguration.getBrokerList());
             props.put("acks", "all");
             props.put("retries", 0);
@@ -128,13 +139,9 @@ public class AppConfiguration {
 
             producer = new KafkaProducer<>(props);
 
-//            FileHandler fileTxt = new FileHandler("/tmp/oddeye.log", 1000000, 1);
-//            fileTxt.setFormatter(new SimpleFormatter());
-//            write.log.addHandler(fileTxt);
-
         } catch (IOException | SecurityException e) {
-//        } catch (Exception e) {
-            System.out.println("File not found!");
+            LOGGER.error("ERROR Connect to kafka " + globalFunctions.stackTrace(e));
+            return false;
 
         }
         return true;
@@ -142,24 +149,24 @@ public class AppConfiguration {
     }
 
     /**
-     * @return the sFileName
+     * @return the CONFIG_FILE
      */
     public static String getsFileName() {
-        return sFileName;
+        return CONFIG_FILE;
     }
 
     /**
-     * @return the sDirSeparator
+     * @return the DIR_SEPARATOR
      */
     public static String getsDirSeparator() {
-        return sDirSeparator;
+        return DIR_SEPARATOR;
     }
 
     /**
-     * @return the configProps
+     * @return the PROPS_CONFIGS
      */
     public static Properties getConfigProps() {
-        return configProps;
+        return PROPS_CONFIGS;
     }
 
     /**
