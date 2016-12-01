@@ -8,6 +8,7 @@ package base.oddeye.barlus;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -131,7 +132,7 @@ public class PutTSDB extends HttpServlet {
 //                        Httpresponse = "Not valid json Array";
                         PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array:"+ request.getSession().getId());
                     }
-                } catch (Exception e) {
+                } catch (JsonSyntaxException e) {
 //                    Httpresponse = "Not json Array";
                     PutTSDB.logger.log(Level.ERROR, "NOT JSON Array:"+ request.getSession().getId());
                 }
