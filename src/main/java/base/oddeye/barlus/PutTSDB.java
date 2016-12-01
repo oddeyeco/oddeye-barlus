@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import org.apache.log4j.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,7 +27,7 @@ import org.apache.log4j.Level;
  * @author vahan
  */
 public class PutTSDB extends HttpServlet {
-    
+
     public static final Logger logger = Logger.getLogger(PutTSDB.class.getName());
 
     /**
@@ -40,13 +41,19 @@ public class PutTSDB extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        PutTSDB.logger.log(Level.INFO,  "Start servlet TSDB process request:"+request.getSession().getId());
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            PutTSDB.logger.log(Level.ERROR, "Headers " + headerName);
+        }
+
+        PutTSDB.logger.log(Level.INFO, "Start servlet TSDB process request:" + request.getSession().getId());
         JsonArray jsonResult;
         JsonParser parser = new JsonParser();
         try {
             String Httpresponse = "";
-            String uid = request.getParameter("UUID");            
+            String uid = request.getParameter("UUID");
             String msg = "";
             String topic = AppConfiguration.getBrokerTSDBTopic();
 //             KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);            
@@ -64,58 +71,51 @@ public class PutTSDB extends HttpServlet {
                         msg = request.getParameter("data");
                     } else {
 //                        Httpresponse = "UUID Not exist User count = " + AppConfiguration.getUsers().length;
-                        PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:"+request.getSession().getId());
+                        PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" + request.getSession().getId());
                     }
                 }
             } else {
                 msg = "";
-                PutTSDB.logger.log(Level.ERROR, "EMPTY UUID:"+ request.getSession().getId());
+                PutTSDB.logger.log(Level.ERROR, "EMPTY UUID:" + request.getSession().getId());
             }
-            PutTSDB.logger.log(Level.INFO, "Check UUID:"+ request.getSession().getId());
+            PutTSDB.logger.log(Level.INFO, "Check UUID:" + request.getSession().getId());
 
             if (!msg.equals("")) {
-                PutTSDB.logger.log(Level.INFO, "MSG:"+msg+" :"+request.getSession().getId());
+                PutTSDB.logger.log(Level.INFO, "MSG:" + msg + " :" + request.getSession().getId());
                 try {
                     jsonResult = (JsonArray) parser.parse(msg);
 
                     if (jsonResult.size() > 0) {
                         for (int i = 0; i < jsonResult.size(); i++) {
                             JsonElement Metric = jsonResult.get(i);
-                            if (Metric.getAsJsonObject().get("tags") != null) {                                
-                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("host") == null)
-                                {
-                                    PutTSDB.logger.log(Level.WARN, "host not exist in input "+msg);
-                                }                                
-                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("type") == null)
-                                {
-                                    PutTSDB.logger.log(Level.WARN, "type not exist in input "+msg);
-                                }                                
-                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("alert_level") == null)
-                                {
-                                    PutTSDB.logger.log(Level.WARN, "alert_level not exist in input "+msg);
-                                }                                
-                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("group") == null)
-                                {
-                                    PutTSDB.logger.log(Level.WARN, "group not exist in input "+msg);
-                                }                                
-                                if (Metric.getAsJsonObject().get("timestamp") == null)
-                                {
-                                    PutTSDB.logger.log(Level.WARN, "timestamp not exist in input "+msg);
-                                }                                                                
-                                
-                                if (Metric.getAsJsonObject().get("metric") == null)
-                                {
-                                    PutTSDB.logger.log(Level.WARN, "metric not exist in input "+msg);
-                                }                                                                
-                                if (Metric.getAsJsonObject().get("value") == null)
-                                {
-                                    PutTSDB.logger.log(Level.WARN, "value not exist in input "+msg);
-                                }                                                                                                
+                            if (Metric.getAsJsonObject().get("tags") != null) {
+                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("host") == null) {
+                                    PutTSDB.logger.log(Level.WARN, "host not exist in input " + msg);
+                                }
+                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("type") == null) {
+                                    PutTSDB.logger.log(Level.WARN, "type not exist in input " + msg);
+                                }
+                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("alert_level") == null) {
+                                    PutTSDB.logger.log(Level.WARN, "alert_level not exist in input " + msg);
+                                }
+                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("group") == null) {
+                                    PutTSDB.logger.log(Level.WARN, "group not exist in input " + msg);
+                                }
+                                if (Metric.getAsJsonObject().get("timestamp") == null) {
+                                    PutTSDB.logger.log(Level.WARN, "timestamp not exist in input " + msg);
+                                }
+
+                                if (Metric.getAsJsonObject().get("metric") == null) {
+                                    PutTSDB.logger.log(Level.WARN, "metric not exist in input " + msg);
+                                }
+                                if (Metric.getAsJsonObject().get("value") == null) {
+                                    PutTSDB.logger.log(Level.WARN, "value not exist in input " + msg);
+                                }
                                 Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);
-                                
+
                             } else {
                                 jsonResult.remove(i);
-                                PutTSDB.logger.log(Level.ERROR, "tags not exist in input "+msg);
+                                PutTSDB.logger.log(Level.ERROR, "tags not exist in input " + msg);
                                 i--;
                             }
 
@@ -124,17 +124,17 @@ public class PutTSDB extends HttpServlet {
                         if (jsonResult.size() > 0) {
 //                            final KeyedMessage<String, String> data = new KeyedMessage<>(topic, jsonResult.toString());
                             final ProducerRecord<String, String> data = new ProducerRecord<String, String>(topic, jsonResult.toString());
-                            PutTSDB.logger.log(Level.INFO, "Prepred data to send:"+ request.getSession().getId());                            
+                            PutTSDB.logger.log(Level.INFO, "Prepred data to send:" + request.getSession().getId());
                             AppConfiguration.getProducer().send(data);
-                            PutTSDB.logger.log(Level.INFO, "Prepred data send:"+ request.getSession().getId());
+                            PutTSDB.logger.log(Level.INFO, "Prepred data send:" + request.getSession().getId());
                         }
                     } else {
 //                        Httpresponse = "Not valid json Array";
-                        PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array:"+ request.getSession().getId());
+                        PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array:" + request.getSession().getId());
                     }
                 } catch (JsonSyntaxException e) {
 //                    Httpresponse = "Not json Array";
-                    PutTSDB.logger.log(Level.ERROR, "NOT JSON Array:"+ request.getSession().getId());
+                    PutTSDB.logger.log(Level.ERROR, "NOT JSON Array:" + request.getSession().getId());
                 }
 
             }
@@ -147,10 +147,10 @@ public class PutTSDB extends HttpServlet {
             }
         } catch (Exception e) {
             PutTSDB.logger.log(Level.ERROR, "Exception: ", e);
-            PutTSDB.logger.log(Level.ERROR, "Exception for request: "+ request.getParameterMap().toString());
-            PutTSDB.logger.log(Level.ERROR, "Exception for xIp: "+ request.getHeader("X-Real-IP"));
-            PutTSDB.logger.log(Level.ERROR, "Exception for xIp2: "+ request.getHeader("X-Forwarded-For"));
-            PutTSDB.logger.log(Level.ERROR, "Exception for Ip: "+ request.getRemoteAddr());
+            PutTSDB.logger.log(Level.ERROR, "Exception for request: " + request.getParameterMap().toString());
+            PutTSDB.logger.log(Level.ERROR, "Exception for xIp: " + request.getHeader("X-Real-IP"));
+            PutTSDB.logger.log(Level.ERROR, "Exception for xIp2: " + request.getHeader("X-Forwarded-For"));
+            PutTSDB.logger.log(Level.ERROR, "Exception for Ip: " + request.getRemoteAddr());
         }
     }
 
