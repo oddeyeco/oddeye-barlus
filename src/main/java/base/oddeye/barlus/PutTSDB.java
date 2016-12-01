@@ -42,13 +42,17 @@ public class PutTSDB extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        Enumeration<String> headerNames = request.getHeaderNames();
-        PutTSDB.logger.log(Level.ERROR, "************************************************");
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            PutTSDB.logger.log(Level.ERROR, "Headers " + headerName+" - "+request.getHeader(headerName));
-        }
-        PutTSDB.logger.log(Level.ERROR, "************************************************");
+//        Enumeration<String> headerNames = request.getHeaderNames();
+//        PutTSDB.logger.log(Level.ERROR, "************************************************");
+//        while (headerNames.hasMoreElements()) {
+//            String headerName = headerNames.nextElement();
+//            Enumeration<String> headers = request.getHeaders(headerName);
+//            while (headers.hasMoreElements()) {
+//                String headerValue = headers.nextElement();
+//                PutTSDB.logger.log(Level.ERROR, "Headers " + headerName + " - " + headerValue);
+//            }
+//        }
+//        PutTSDB.logger.log(Level.ERROR, "************************************************");
 
         PutTSDB.logger.log(Level.INFO, "Start servlet TSDB process request:" + request.getSession().getId());
         JsonArray jsonResult;
@@ -150,9 +154,7 @@ public class PutTSDB extends HttpServlet {
         } catch (Exception e) {
             PutTSDB.logger.log(Level.ERROR, "Exception: ", e);
             PutTSDB.logger.log(Level.ERROR, "Exception for request: " + request.getParameterMap().toString());
-            PutTSDB.logger.log(Level.ERROR, "Exception for xIp: " + request.getHeader("X-Real-IP"));
-            PutTSDB.logger.log(Level.ERROR, "Exception for xIp2: " + request.getHeader("X-Forwarded-For"));
-            PutTSDB.logger.log(Level.ERROR, "Exception for Ip: " + request.getRemoteAddr());
+            PutTSDB.logger.log(Level.ERROR, "Exception for xIp: " + request.getHeader("X-Real-IP"));                        
         }
     }
 
