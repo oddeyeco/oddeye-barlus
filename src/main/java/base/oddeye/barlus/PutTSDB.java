@@ -45,7 +45,7 @@ public class PutTSDB extends HttpServlet {
         JsonParser parser = new JsonParser();
         try {
             String Httpresponse = "";
-            String uid = request.getParameter("UUID");
+            String uid = request.getParameter("UUID");            
             String msg = "";
             String topic = AppConfiguration.getBrokerTSDBTopic();
 //             KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);            
@@ -146,6 +146,10 @@ public class PutTSDB extends HttpServlet {
             }
         } catch (Exception e) {
             PutTSDB.logger.log(Level.ERROR, "Exception: ", e);
+            PutTSDB.logger.log(Level.ERROR, "Exception for request: "+ request.getParameterMap().toString());
+            PutTSDB.logger.log(Level.ERROR, "Exception for xIp: "+ request.getHeader("X-Real-IP"));
+            PutTSDB.logger.log(Level.ERROR, "Exception for xIp2: "+ request.getHeader("X-Forwarded-For"));
+            PutTSDB.logger.log(Level.ERROR, "Exception for Ip: "+ request.getRemoteAddr());
         }
     }
 
