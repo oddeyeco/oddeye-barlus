@@ -43,10 +43,12 @@ public class PutTSDB extends HttpServlet {
             throws ServletException, IOException {
 
         Enumeration<String> headerNames = request.getHeaderNames();
+        PutTSDB.logger.log(Level.ERROR, "************************************************");
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            PutTSDB.logger.log(Level.ERROR, "Headers " + headerName);
+            PutTSDB.logger.log(Level.ERROR, "Headers " + headerName+" - "+request.getHeader(headerName));
         }
+        PutTSDB.logger.log(Level.ERROR, "************************************************");
 
         PutTSDB.logger.log(Level.INFO, "Start servlet TSDB process request:" + request.getSession().getId());
         JsonArray jsonResult;
