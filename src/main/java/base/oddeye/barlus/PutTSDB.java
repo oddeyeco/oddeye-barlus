@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import org.apache.log4j.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -99,23 +98,23 @@ public class PutTSDB extends HttpServlet {
                                     PutTSDB.logger.log(Level.WARN, "host not exist in input " + msg);
                                 }
                                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("type") == null) {
-                                    PutTSDB.logger.log(Level.WARN, "type not exist in input " + msg);
+                                    PutTSDB.logger.log(Level.ERROR, "type not exist in input " + msg);
                                 }
                                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("alert_level") == null) {
-                                    PutTSDB.logger.log(Level.WARN, "alert_level not exist in input " + msg);
+                                    PutTSDB.logger.log(Level.INFO, "alert_level not exist in input " + msg);
                                 }
                                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("group") == null) {
-                                    PutTSDB.logger.log(Level.WARN, "group not exist in input " + msg);
+                                    PutTSDB.logger.log(Level.INFO, "group not exist in input " + msg);
                                 }
                                 if (Metric.getAsJsonObject().get("timestamp") == null) {
-                                    PutTSDB.logger.log(Level.WARN, "timestamp not exist in input " + msg);
+                                    PutTSDB.logger.log(Level.ERROR, "timestamp not exist in input " + msg);
                                 }
 
                                 if (Metric.getAsJsonObject().get("metric") == null) {
-                                    PutTSDB.logger.log(Level.WARN, "metric not exist in input " + msg);
+                                    PutTSDB.logger.log(Level.INFO, "metric not exist in input " + msg);
                                 }
                                 if (Metric.getAsJsonObject().get("value") == null) {
-                                    PutTSDB.logger.log(Level.WARN, "value not exist in input " + msg);
+                                    PutTSDB.logger.log(Level.INFO, "value not exist in input " + msg);
                                 }
                                 Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);
 
