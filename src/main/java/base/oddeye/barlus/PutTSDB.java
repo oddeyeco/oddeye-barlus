@@ -95,10 +95,10 @@ public class PutTSDB extends HttpServlet {
                             JsonElement Metric = jsonResult.get(i);
                             if (Metric.getAsJsonObject().get("tags") != null) {
                                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("host") == null) {
-                                    PutTSDB.logger.log(Level.WARN, "host not exist in input " + msg);
+                                    PutTSDB.logger.log(Level.INFO, "host not exist in input " + msg);
                                 }
                                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("type") == null) {
-                                    PutTSDB.logger.log(Level.ERROR, "type not exist in input " + msg);
+                                    PutTSDB.logger.log(Level.INFO, "type not exist in input " + msg);
                                 }
                                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("alert_level") == null) {
                                     PutTSDB.logger.log(Level.INFO, "alert_level not exist in input " + msg);
