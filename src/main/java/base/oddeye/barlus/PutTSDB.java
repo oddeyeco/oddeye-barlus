@@ -28,6 +28,7 @@ import org.apache.log4j.Level;
 public class PutTSDB extends HttpServlet {
 
     public static final Logger logger = Logger.getLogger(PutTSDB.class.getName());
+    public static final Logger loggerTest = Logger.getLogger("test");
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -52,7 +53,6 @@ public class PutTSDB extends HttpServlet {
 //            }
 //        }
 //        PutTSDB.logger.log(Level.ERROR, "************************************************");
-
         PutTSDB.logger.log(Level.INFO, "Start servlet TSDB process request:" + request.getSession().getId());
         JsonArray jsonResult;
         JsonParser parser = new JsonParser();
@@ -61,12 +61,18 @@ public class PutTSDB extends HttpServlet {
             String uid = request.getParameter("UUID");
             String msg = "";
             String topic = AppConfiguration.getBrokerTSDBTopic();
+            if (loggerTest.isDebugEnabled()) {
+                loggerTest.debug("uid =" + uid);
+            }
 //             KeyedMessage<String, String> data = new KeyedMessage<String, String>(topic, msg);            
 //            Map JsonMap = null;
             if ((uid != null) & (!uid.equals(""))) {
 
                 int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
 
+                if (loggerTest.isDebugEnabled()) {
+                    loggerTest.debug("msg =" + request.getParameter("data"));
+                }
                 if (idx > -1) {
                     msg = request.getParameter("data");
                 } else {
@@ -131,6 +137,9 @@ public class PutTSDB extends HttpServlet {
                             final ProducerRecord<String, String> data = new ProducerRecord<String, String>(topic, jsonResult.toString());
                             PutTSDB.logger.log(Level.INFO, "Prepred data to send:" + request.getSession().getId());
                             AppConfiguration.getProducer().send(data);
+                            if (loggerTest.isDebugEnabled()) {
+                                loggerTest.debug("Send data =" + jsonResult.toString());
+                            }
                             PutTSDB.logger.log(Level.INFO, "Prepred data send:" + request.getSession().getId());
                         }
                     } else {
@@ -153,7 +162,7 @@ public class PutTSDB extends HttpServlet {
         } catch (Exception e) {
             PutTSDB.logger.log(Level.ERROR, "Exception: ", e);
             PutTSDB.logger.log(Level.ERROR, "Exception for request: " + request.getParameterMap().toString());
-            PutTSDB.logger.log(Level.ERROR, "Exception for xIp: " + request.getHeader("X-Real-IP"));                        
+            PutTSDB.logger.log(Level.ERROR, "Exception for xIp: " + request.getHeader("X-Real-IP"));
         }
     }
 
