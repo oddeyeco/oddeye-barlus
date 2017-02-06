@@ -57,10 +57,17 @@ public class PutTSDB extends HttpServlet {
         JsonArray jsonResult;
         JsonParser parser = new JsonParser();
         try {
-            String Httpresponse = "";
+            String Httpresponse = "OK";
             String uid = request.getParameter("UUID");
+            boolean sandbox = request.getParameter("sandbox") != null;
             String msg = "";
-            String topic = AppConfiguration.getBrokerTSDBTopic();
+            String topic;
+            if (sandbox) {
+                topic = AppConfiguration.getBrokerSandboxTopic();
+            } else {
+                topic = AppConfiguration.getBrokerTSDBTopic();
+            }
+
             if (loggerTest.isDebugEnabled()) {
                 loggerTest.debug("uid =" + uid);
             }
@@ -82,11 +89,13 @@ public class PutTSDB extends HttpServlet {
                         msg = request.getParameter("data");
                     } else {
 //                        Httpresponse = "UUID Not exist User count = " + AppConfiguration.getUsers().length;
+                        Httpresponse = "FAILURE";
                         PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" + request.getSession().getId());
                     }
                 }
             } else {
                 msg = "";
+                Httpresponse = "FAILURE";
                 PutTSDB.logger.log(Level.ERROR, "EMPTY UUID:" + request.getSession().getId());
             }
             PutTSDB.logger.log(Level.INFO, "Check UUID:" + request.getSession().getId());
@@ -106,9 +115,9 @@ public class PutTSDB extends HttpServlet {
                                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("type") == null) {
                                     PutTSDB.logger.log(Level.INFO, "type not exist in input " + msg);
                                 }
-                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("alert_level") == null) {
-                                    PutTSDB.logger.log(Level.INFO, "alert_level not exist in input " + msg);
-                                }
+//                                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("alert_level") == null) {
+//                                    PutTSDB.logger.log(Level.INFO, "alert_level not exist in input " + msg);
+//                                }
                                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("group") == null) {
                                     PutTSDB.logger.log(Level.INFO, "group not exist in input " + msg);
                                 }
@@ -144,10 +153,12 @@ public class PutTSDB extends HttpServlet {
                         }
                     } else {
 //                        Httpresponse = "Not valid json Array";
+                        Httpresponse = "FAILURE";
                         PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array:" + request.getSession().getId());
                     }
                 } catch (JsonSyntaxException e) {
 //                    Httpresponse = "Not json Array";
+                    Httpresponse = "FAILURE";
                     PutTSDB.logger.log(Level.ERROR, "NOT JSON Array:" + request.getSession().getId());
                 }
 
@@ -157,7 +168,7 @@ public class PutTSDB extends HttpServlet {
                     "text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
 //                out.println(Httpresponse + "\n\r");
-                out.println("Send message OK");
+                out.println("Send message " + Httpresponse);
             }
         } catch (Exception e) {
             PutTSDB.logger.log(Level.ERROR, "Exception: ", e);
