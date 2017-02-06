@@ -94,7 +94,7 @@ public class write extends HttpServlet {
                         if (!JsonMap.get("UUID").isEmpty() & !JsonMap.get("tags").isEmpty() & !JsonMap.get("data").isEmpty()) {
                             if (JsonMap.get("UUID").productElement(0).equals(uid)) {
 //                            msg = msg;
-                                topic = AppConfiguration.getBrokerTopic();                                
+                                topic = AppConfiguration.getBrokerSandboxTopic();                                
                                 final ProducerRecord<String, String> data = new ProducerRecord<>(topic, Json.encode(msgObject.productElement(0)));
 
                                 AppConfiguration.getProducer().send(data);

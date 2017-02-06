@@ -47,7 +47,7 @@ public class AppConfiguration {
     private static final String DIR_SEPARATOR = System.getProperty("file.separator");
     private static final Properties PROPS_CONFIGS = new Properties();
     private static String BrokerList = "localhost:9093,localhost:9094";
-    private static String BrokerTopic = "oddeyecoconutdefaulttopic";
+    private static String BrokerSandboxTopic = "sandbox";
     private static String BrokerTSDBTopic = "oddeyecoconutdefaultTSDBtopic";
 
     private static String[] users;
@@ -118,7 +118,7 @@ public class AppConfiguration {
             FileInputStream ins = new FileInputStream(sFilePath);
             PROPS_CONFIGS.load(ins);
             BrokerList = PROPS_CONFIGS.getProperty("broker.list");
-            BrokerTopic = PROPS_CONFIGS.getProperty("broker.classic.topic");
+            BrokerSandboxTopic = PROPS_CONFIGS.getProperty("broker.sandbox.topic");
             BrokerTSDBTopic = PROPS_CONFIGS.getProperty("broker.tsdb.topic");
             boolean readusers = initUsers();
 
@@ -177,10 +177,10 @@ public class AppConfiguration {
     }
 
     /**
-     * @return the BrokerTopic
+     * @return the BrokerSandboxTopic
      */
-    public static String getBrokerTopic() {
-        return BrokerTopic;
+    public static String getBrokerSandboxTopic() {
+        return BrokerSandboxTopic;
     }
 
     /**

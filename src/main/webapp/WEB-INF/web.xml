@@ -7,14 +7,10 @@
     <context-param>
         <param-name>log4j-config-location</param-name>
         <param-value>/WEB-INF/log4j.properties</param-value>
-    </context-param>    
+    </context-param>
     <servlet>
         <servlet-name>writedata</servlet-name>
         <servlet-class>base.oddeye.barlus.write</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>Putclassic</servlet-name>
-        <servlet-class>base.oddeye.barlus.Putclassic</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>PutTSDB</servlet-name>
@@ -23,10 +19,6 @@
     <servlet-mapping>
         <servlet-name>writedata</servlet-name>
         <url-pattern>/write</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Putclassic</servlet-name>
-        <url-pattern>/put/classic</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PutTSDB</servlet-name>
