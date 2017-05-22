@@ -185,7 +185,7 @@ public class PutTSDB extends HttpServlet {
 //                    Httpresponse = "Not json Array";                        
                         code = 415;
                         Httpresponse = "\"FAILURE\",\"message\":\"" + e.getMessage() + " \"";
-                        PutTSDB.logger.log(Level.ERROR, "NOT JSON Array:" + request.getSession().getId());
+                        PutTSDB.logger.log(Level.ERROR, "NOT JSON Array:" + msg);
                     }
 
                 } else {
