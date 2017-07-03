@@ -60,6 +60,7 @@ public class PutTSDB extends HttpServlet {
             int code = HttpServletResponse.SC_OK;
             String Httpresponse = "OK";
             String uid = request.getParameter("UUID");
+            uid = uid.trim();
             String checkerrors = "";
             boolean sandbox = request.getParameter("sandbox") != null;
             String msg = "";
