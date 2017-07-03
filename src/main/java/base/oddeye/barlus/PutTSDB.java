@@ -90,7 +90,7 @@ public class PutTSDB extends HttpServlet {
                     } else {
                         code = 424;
                         Httpresponse = "\"FAILURE\",messge:\"NOT VALID UUID\"";
-                        PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" + request.getSession().getId());
+                        PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" +uid +" data:"+ request.getParameter("data"));
                     }
                 }
             } else {
