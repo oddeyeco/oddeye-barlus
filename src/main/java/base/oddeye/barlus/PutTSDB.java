@@ -90,7 +90,7 @@ public class PutTSDB extends HttpServlet {
                     } else {
                         code = 424;
                         Httpresponse = "\"FAILURE\",messge:\"NOT VALID UUID\"";
-                        PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" +uid +" data:"+ request.getParameter("data"));
+                        PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" +uid +"IP:"+request.getHeader("X-Real-IP")+ " data:"+ request.getParameter("data"));
                     }
                 }
             } else {
@@ -172,14 +172,14 @@ public class PutTSDB extends HttpServlet {
 //                        Httpresponse = "Not valid json Array";
                                 code = 411;
                                 Httpresponse = "\"FAILURE\",\"message\":\"Not valid data\"";
-                                PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array Remove by barlus:" + msg);
+                                PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array Remove by barlus:"  +"IP:"+request.getHeader("X-Real-IP")+" data:"+ msg);
                             }
 
                         } else {
 //                        Httpresponse = "Not valid json Array";
                             code = 411;
                             Httpresponse = "\"FAILURE\",\"message\":\"NOT VALID JSON Array\"";
-                            PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Empty array:" + msg);
+                            PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Empty array:"  +"IP:"+request.getHeader("X-Real-IP")+ " data:"+ msg);
                         }
                     } catch (Exception e) {
 //                    Httpresponse = "Not json Array";                        
