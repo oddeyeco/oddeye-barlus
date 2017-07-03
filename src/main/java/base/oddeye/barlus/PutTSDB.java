@@ -167,19 +167,19 @@ public class PutTSDB extends HttpServlet {
                                 if (loggerTest.isDebugEnabled()) {
                                     loggerTest.debug("Send data =" + jsonResult.toString());
                                 }
-                                PutTSDB.logger.log(Level.INFO, "Prepred data send:" + request.getSession().getId());
+                                PutTSDB.logger.log(Level.INFO, "Prepred data send:" + msg);
                             } else {
 //                        Httpresponse = "Not valid json Array";
                                 code = 411;
                                 Httpresponse = "\"FAILURE\",\"message\":\"Not valid data\"";
-                                PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array:" + request.getSession().getId());
+                                PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array Remove by barlus:" + msg);
                             }
 
                         } else {
 //                        Httpresponse = "Not valid json Array";
                             code = 411;
                             Httpresponse = "\"FAILURE\",\"message\":\"NOT VALID JSON Array\"";
-                            PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array:" + request.getSession().getId());
+                            PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Empty array:" + msg);
                         }
                     } catch (Exception e) {
 //                    Httpresponse = "Not json Array";                        
