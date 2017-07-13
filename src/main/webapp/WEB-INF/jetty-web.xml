@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_9_0.dtd">
 <Configure class="org.eclipse.jetty.webapp.WebAppContext">
     <Set name="contextPath">/oddeye-barlus</Set>
@@ -30,39 +30,44 @@
                 </Set>
 
                 <Set name="includedMethodList">
-                    <Property name="jetty.gzip.includedMethodList" default="GET" />
+                    <Property name="jetty.gzip.includedMethodList" default="POST" />
                 </Set>
                 <Set name="excludedMethodList">
                     <Property name="jetty.gzip.excludedMethodList" default="" />
                 </Set>
 
-                <!--
-                        <Set name="includedMethods">
-                          <Array type="String">
-                            <Item>GET</Item>
-                          </Array>
-                        </Set>
-                        <Set name="includedPaths">
-                          <Array type="String">
-                            <Item>/*</Item>
-                          </Array>
-                        </Set>
-                        <Set name="excludedPaths">
-                          <Array type="String">
-                            <Item>*.gz</Item>
-                          </Array>
-                        </Set>
-                        <Call name="addIncludedMimeTypes">
-                          <Arg><Array type="String">
+                
+                <Set name="includedMethods">
+                    <Array type="String">
+                        <Item>GET</Item>
+                        <Item>POST</Item>
+                    </Array>
+                </Set>
+<!--                <Set name="includedPaths">
+                    <Array type="String">
+                        <Item>/*</Item>
+                    </Array>
+                </Set>
+                <Set name="excludedPaths">
+                    <Array type="String">
+                        <Item>*.gz</Item>
+                    </Array>
+                </Set>
+                <Call name="addIncludedMimeTypes">
+                    <Arg>
+                        <Array type="String">
                             <Item>some/type</Item>
-                          </Array></Arg>
-                        </Call>
-                        <Call name="addExcludedMimeTypes">
-                          <Arg><Array type="String">
+                        </Array>
+                    </Arg>
+                </Call>
+                <Call name="addExcludedMimeTypes">
+                    <Arg>
+                        <Array type="String">
                             <Item>some/type</Item>
-                          </Array></Arg>
-                        </Call>
-                -->
+                        </Array>
+                    </Arg>
+                </Call>-->
+                
 
             </New>
         </Arg>
