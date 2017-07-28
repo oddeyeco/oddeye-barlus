@@ -8,7 +8,6 @@ package base.oddeye.barlus;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -98,7 +97,7 @@ public class PutTSDB extends HttpServlet {
                 code = HttpServletResponse.SC_NOT_ACCEPTABLE;
                 Httpresponse = "\"FAILURE\",messge:\"EMPTY UUID\"";
                 msg = "";
-                Httpresponse = "FAILURE";
+//                Httpresponse = "FAILURE";
                 PutTSDB.logger.log(Level.ERROR, "EMPTY UUID:" + request.getSession().getId());
             }
             PutTSDB.logger.log(Level.INFO, "Check UUID:" + request.getSession().getId());
