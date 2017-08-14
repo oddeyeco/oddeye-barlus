@@ -69,7 +69,7 @@ public class AppConfiguration {
         ArrayList<String> UserList;
         UserList = new ArrayList<>();
         try (Connection connection = ConnectionFactory.createConnection(config)) {
-            TableName tableName = TableName.valueOf("oddeyeusers");
+            TableName tableName = TableName.valueOf(PROPS_CONFIGS.getProperty("hbase.usertable"));
             try (Table table = connection.getTable(tableName)) {
                 SingleColumnValueFilter filter = new SingleColumnValueFilter(
                         Bytes.toBytes("technicalinfo"),
