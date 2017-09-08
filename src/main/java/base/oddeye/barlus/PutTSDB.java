@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import org.apache.log4j.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -90,7 +91,7 @@ public class PutTSDB extends HttpServlet {
                     } else {
                         code = 424;
                         Httpresponse = "\"FAILURE\",messge:\"NOT VALID UUID\"";
-                        PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" +uid +"IP:"+request.getHeader("X-Real-IP")+ " data:"+ request.getParameter("data"));
+                        PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" + uid + "IP:" + request.getHeader("X-Real-IP") + " data:" + request.getParameter("data"));
                     }
                 }
             } else {
@@ -132,18 +133,24 @@ public class PutTSDB extends HttpServlet {
                                         }
 
                                         if (Metric.getAsJsonObject().get("metric") == null) {
-                                            PutTSDB.logger.log(Level.INFO, "metric not exist in input " + msg);
+                                            PutTSDB.logger.log(Level.ERROR, "metric not exist in input " + msg);
                                             jsonResult.remove(i);
                                             checkerrors = checkerrors + "{\"message\":\"metric not exist in input\"},";
                                             i--;
                                             continue;
                                         }
                                         if (Metric.getAsJsonObject().get("value") == null) {
-                                            PutTSDB.logger.log(Level.INFO, "value not exist in input " + msg);
+                                            PutTSDB.logger.log(Level.ERROR, "value not exist in input " + msg);
                                             jsonResult.remove(i);
                                             checkerrors = checkerrors + "{\"message\":\"value not exist in input\"},";
                                             i--;
+                                            continue;
                                         }
+
+//                                        Timestamp stamp = new Timestamp(System.currentTimeMillis());
+//                                        PutTSDB.logger.log(Level.ERROR, Metric.getAsJsonObject().get("timestamp").getAsLong()*1000);
+                                        Date date = new Date(Metric.getAsJsonObject().get("timestamp").getAsLong()*1000);
+                                        PutTSDB.logger.log(Level.ERROR, "Metric Name " + Metric.getAsJsonObject().get("metric") + " in Time:" + date + " by Value: " + Metric.getAsJsonObject().get("value") + " vs host: " + Metric.getAsJsonObject().get("tags").getAsJsonObject().get("host"));
                                         Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);
                                     } else {
                                         jsonResult.remove(i);
@@ -172,14 +179,14 @@ public class PutTSDB extends HttpServlet {
 //                        Httpresponse = "Not valid json Array";
                                 code = 411;
                                 Httpresponse = "\"FAILURE\",\"message\":\"Not valid data\"";
-                                PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array Remove by barlus:"  +" IP:"+request.getHeader("X-Real-IP")+" data:"+ msg);
+                                PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Array Remove by barlus:" + " IP:" + request.getHeader("X-Real-IP") + " data:" + msg);
                             }
 
                         } else {
 //                        Httpresponse = "Not valid json Array";
                             code = 411;
                             Httpresponse = "\"FAILURE\",\"message\":\"NOT VALID JSON Array\"";
-                            PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Empty array:"  +" IP:"+request.getHeader("X-Real-IP")+ " data:"+ msg);
+                            PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Empty array:" + " IP:" + request.getHeader("X-Real-IP") + " data:" + msg);
                         }
                     } catch (Exception e) {
 //                    Httpresponse = "Not json Array";                        
