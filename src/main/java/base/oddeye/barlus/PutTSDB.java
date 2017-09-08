@@ -147,10 +147,8 @@ public class PutTSDB extends HttpServlet {
                                             continue;
                                         }
 
-//                                        Timestamp stamp = new Timestamp(System.currentTimeMillis());
-//                                        PutTSDB.logger.log(Level.ERROR, Metric.getAsJsonObject().get("timestamp").getAsLong()*1000);
-                                        Date date = new Date(Metric.getAsJsonObject().get("timestamp").getAsLong()*1000);
-                                        PutTSDB.logger.log(Level.ERROR, "Metric Name " + Metric.getAsJsonObject().get("metric") + " in Time:" + date + " by Value: " + Metric.getAsJsonObject().get("value") + " vs host: " + Metric.getAsJsonObject().get("tags").getAsJsonObject().get("host"));
+//                                        Date date = new Date(Metric.getAsJsonObject().get("timestamp").getAsLong()*1000);
+//                                        PutTSDB.logger.log(Level.ERROR, "Metric Name " + Metric.getAsJsonObject().get("metric") + " in Time:" + date + " by Value: " + Metric.getAsJsonObject().get("value") + " vs host: " + Metric.getAsJsonObject().get("tags").getAsJsonObject().get("host"));
                                         Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);
                                     } else {
                                         jsonResult.remove(i);
