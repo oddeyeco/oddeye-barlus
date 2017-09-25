@@ -25,6 +25,12 @@ and open the template in the editor.
         <form name="Test Form " action="put/tsdb" method="POST">
             <div>Enter value For Barlus TSDB:</div>            
             <div>Sandbox <input type="checkbox" name="sandbox" value="" checked="checked"/></div>
+            <div>Version 
+                <select name="version" >
+                    <option value="">&nbsp;</option>
+                    <option value="2">2</option>
+                </select>
+            </div>  
             <div>UUID <input type="text" name="UUID" value="" /></div>           
             <div>Data <textarea name="data"></textarea>
             <input type="submit" value="SEND" />
