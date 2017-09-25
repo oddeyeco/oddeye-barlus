@@ -20,7 +20,8 @@ and open the template in the editor.
             <input type="submit" value="SEND" />
         </form>  -->
         
-        <div>Use curl for send data curl -i -XPOST '.../oddeye-barlus/put/tsdb' --data-binary 'UUID=youuuid&data=[{TSDBJsonData}]'</div>
+        <div>Use curl for send data curl -i -XPOST '.../oddeye-barlus/put/tsdb' --data-binary 'UUID=youuuid&data=[{TSDBJsonData}]' (Old version)</div>
+        <div>Use curl for send data curl -i -XPOST '.../oddeye-barlus/put/tsdb' --data-binary 'version=2&UUID=youuuid&data=[{TSDBJsonData}]' (Vs version)</div>
         <div>Or Use this test form </div>
         <form name="Test Form " action="put/tsdb" method="POST">
             <div>Enter value For Barlus TSDB:</div>            
