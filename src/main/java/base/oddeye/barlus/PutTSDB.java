@@ -52,7 +52,11 @@ public class PutTSDB extends HttpServlet {
             uid = uid.trim();
 
             String version = request.getParameter("version");
-            version = version.trim();
+            if (version != null) {
+                version = version.trim();
+            } else {
+                version = "";
+            }
             String checkerrors = "";
             boolean sandbox = request.getParameter("sandbox") != null;
             String msg = "";
@@ -160,17 +164,17 @@ public class PutTSDB extends HttpServlet {
     }
 
     private ParseResult prepareJsonObjectV2(JsonElement Metric, String uid, String topic, HttpServletRequest request) {
-        
+
         if (Metric.getAsJsonObject().get("data") != null) {
-            if (Metric.getAsJsonObject().get("data").isJsonPrimitive()) {            
+            if (Metric.getAsJsonObject().get("data").isJsonPrimitive()) {
                 PutTSDB.logger.log(Level.ERROR, "data not json in input " + Metric.toString());
                 return new ParseResult(411, "{\"message\":\"data not json in input\"}");
             }
         } else {
             PutTSDB.logger.log(Level.ERROR, "data not exist in input " + Metric.toString());
             return new ParseResult(411, "{\"message\":\"data not exist in input\"}");
-        }        
-        
+        }
+
         if (Metric.getAsJsonObject().get("tags") != null) {
             if (!Metric.getAsJsonObject().get("tags").isJsonPrimitive()) {
                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("host") == null) {
@@ -182,7 +186,7 @@ public class PutTSDB extends HttpServlet {
                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("group") == null) {
                     PutTSDB.logger.log(Level.INFO, "group not exist in input " + Metric.toString());
                 }
-                Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);                
+                Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);
             } else {
                 PutTSDB.logger.log(Level.ERROR, "tags not json in input " + Metric.toString());
                 return new ParseResult(411, "{\"message\":\"tags not json in input\"}");
@@ -197,7 +201,7 @@ public class PutTSDB extends HttpServlet {
             return new ParseResult(411, "{\"message\":\"timestamp not exist in input\"}");
         }
 
-        Metric.getAsJsonObject().addProperty("version", 2);                
+        Metric.getAsJsonObject().addProperty("version", 2);
 //        if (Metric.getAsJsonObject().get("metric") == null) {
 //            PutTSDB.logger.log(Level.ERROR, "metric name not exist in input " + Metric.toString());
 //            return new ParseResult(411, "{\"message\":\"metric name not exist in input\"}");
