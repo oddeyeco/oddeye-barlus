@@ -57,7 +57,6 @@ public class PutTSDB extends HttpServlet {
             } else {
                 version = "";
             }
-            String checkerrors = "";
             boolean sandbox = request.getParameter("sandbox") != null;
             String msg = "";
             String topic;
@@ -151,10 +150,10 @@ public class PutTSDB extends HttpServlet {
                     "json;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
                 response.setStatus(code);
-                if (!checkerrors.isEmpty()) {
-                    checkerrors = ", \"advansed\":[" + checkerrors.substring(0, checkerrors.length() - 1) + "]";
-                }
-                out.println(" {\"state\":" + Httpresponse + checkerrors + "}");
+//                if (!checkerrors.isEmpty()) {
+//                    checkerrors = ", \"advansed\":[" + checkerrors.substring(0, checkerrors.length() - 1) + "]";
+//                }
+                out.println(" {\"state\":" + Httpresponse + "}");
             }
         } catch (Exception e) {
             PutTSDB.logger.log(Level.ERROR, "Exception: ", e);
@@ -243,10 +242,26 @@ public class PutTSDB extends HttpServlet {
                     PutTSDB.logger.log(Level.ERROR, "metric name not exist in input " + Metric.toString());
                     return new ParseResult(411, "{\"message\":\"metric name not exist in input\"}");
                 }
+//                if (Metric.getAsJsonObject().get("value") == null) {
+//                    PutTSDB.logger.log(Level.ERROR, "value not exist in input " + Metric.toString());
+//                    return new ParseResult(411, "{\"message\":\"value not exist in input\"}");
+//                }
+
                 if (Metric.getAsJsonObject().get("value") == null) {
                     PutTSDB.logger.log(Level.ERROR, "value not exist in input " + Metric.toString());
                     return new ParseResult(411, "{\"message\":\"value not exist in input\"}");
                 }
+                if (Metric.getAsJsonObject().get("value").isJsonNull()) {
+                    PutTSDB.logger.log(Level.ERROR, "value not exist in input " + Metric.toString());
+                    return new ParseResult(411, "{\"message\":\"value not exist in input\"}");
+                }
+                try {
+                    Metric.getAsJsonObject().get("value").getAsDouble();
+                } catch (Exception e) {
+                    PutTSDB.logger.log(Level.ERROR, "value not Double in input " + Metric.toString());
+                    return new ParseResult(411, "{\"message\":\"value not Double in input\"}");                    
+                }
+
                 Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);
             } else {
                 PutTSDB.logger.log(Level.ERROR, "tags not json in input " + Metric.toString());
@@ -271,10 +286,10 @@ public class PutTSDB extends HttpServlet {
     private ParseResult prepareArray(JsonArray jsonResult, String uid, String topic, HttpServletRequest request) {
         int result = HttpServletResponse.SC_OK;
         String Httpresponse = "";
+        String checkerrors = "";
 //                jsonResult = json.getAsJsonArray();
 
         if (jsonResult.size() > 0) {
-            String checkerrors = "";
             for (int i = 0; i < jsonResult.size(); i++) {
                 JsonElement Metric = jsonResult.get(i);
                 if (Metric.getAsJsonObject().get("tags") != null) {
@@ -308,6 +323,22 @@ public class PutTSDB extends HttpServlet {
                             PutTSDB.logger.log(Level.ERROR, "value not exist in input " + jsonResult.toString());
                             jsonResult.remove(i);
                             checkerrors = checkerrors + "{\"message\":\"value not exist in input\"},";
+                            i--;
+                            continue;
+                        }
+                        if (Metric.getAsJsonObject().get("value").isJsonNull()) {
+                            PutTSDB.logger.log(Level.ERROR, "value not exist in input " + jsonResult.toString());
+                            jsonResult.remove(i);
+                            checkerrors = checkerrors + "{\"message\":\"value not exist in input\"},";
+                            i--;
+                            continue;
+                        }
+                        try {
+                            Metric.getAsJsonObject().get("value").getAsDouble();
+                        } catch (Exception e) {
+                            PutTSDB.logger.log(Level.ERROR, "value not Double in input " + jsonResult.toString());
+                            jsonResult.remove(i);
+                            checkerrors = checkerrors + "{\"message\":\"value not Double in input\"},";
                             i--;
                             continue;
                         }
@@ -351,7 +382,10 @@ public class PutTSDB extends HttpServlet {
             Httpresponse = "\"FAILURE\",\"message\":\"NOT VALID JSON Array\"";
             PutTSDB.logger.log(Level.ERROR, "NOT VALID JSON Empty array:" + " IP:" + request.getHeader("X-Real-IP") + " data:" + jsonResult.toString());
         }
-
+        if (!checkerrors.isEmpty()) {
+            checkerrors = ", \"advansed\":[" + checkerrors.substring(0, checkerrors.length() - 1) + "]";
+        }
+        Httpresponse = Httpresponse + checkerrors;
         return new ParseResult(result, Httpresponse);
     }
 
