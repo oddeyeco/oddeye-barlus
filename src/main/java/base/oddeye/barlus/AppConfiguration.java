@@ -5,7 +5,10 @@
  */
 package base.oddeye.barlus;
 
+import co.oddeye.core.OddeyeHttpURLConnection;
 import co.oddeye.core.globalFunctions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import java.util.Properties;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,26 +17,18 @@ import javax.servlet.ServletContext;
 //import kafka.javaapi.producer.Producer;
 //import kafka.producer.ProducerConfig;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.BinaryComparator;
-import org.apache.hadoop.hbase.filter.CompareFilter;
-import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.hbase.async.Config;
+import org.hbase.async.GetRequest;
+import org.hbase.async.HBaseClient;
+import org.hbase.async.KeyValue;
 
 /**
  *
@@ -49,8 +44,8 @@ public class AppConfiguration {
     private static String BrokerList = "localhost:9093,localhost:9094";
     private static String BrokerSandboxTopic = "sandbox";
     private static String BrokerTSDBTopic = "oddeyecoconutdefaultTSDBtopic";
-
-    private static String[] users;
+    private static Cache<String, barlusUser> users = CacheBuilder.newBuilder().concurrencyLevel(4).expireAfterWrite(1, TimeUnit.MINUTES).build();
+//    private static ConcurrentHashMap<String, barlusUser> users = new ConcurrentHashMap<>();
     private static Producer<String, String> producer;
 
 //broker.topic = topic2
@@ -61,43 +56,68 @@ public class AppConfiguration {
         return true;
     }
 
-    public static boolean initUsers() {
-        Configuration config = HBaseConfiguration.create();
-        config.clear();
-        config.set("hbase.zookeeper.quorum", PROPS_CONFIGS.getProperty("zookeeper.quorum"));
-        config.set("hbase.zookeeper.property.clientPort", PROPS_CONFIGS.getProperty("zookeeper.clientPort"));
-        ArrayList<String> UserList;
-        UserList = new ArrayList<>();
-        try (Connection connection = ConnectionFactory.createConnection(config)) {
-            TableName tableName = TableName.valueOf(PROPS_CONFIGS.getProperty("hbase.usertable"));
-            try (Table table = connection.getTable(tableName)) {
-                SingleColumnValueFilter filter = new SingleColumnValueFilter(
-                        Bytes.toBytes("technicalinfo"),
-                        Bytes.toBytes("active"),
-                        CompareFilter.CompareOp.NOT_EQUAL,
-                        new BinaryComparator(Bytes.toBytes(Boolean.FALSE)));
-                filter.setFilterIfMissing(false);
-                Scan scan1 = new Scan();
-                scan1.setFilter(filter);
-                try (ResultScanner scanner1 = table.getScanner(scan1)) {
-                    for (Result res : scanner1) {
-                        UserList.add(new String(res.getRow()));
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("ERROR In get Scanner " + globalFunctions.stackTrace(e));
-                    return false;
-                }
-            } catch (Exception e) {
-                LOGGER.error("ERROR In get Table " + globalFunctions.stackTrace(e));
-                return false;
-            }
-        } catch (Exception e) {
-            LOGGER.error("ERROR In Create Connection " + globalFunctions.stackTrace(e));
-            return false;
+    public static barlusUser getUser(String uuid) {
+
+        Config clientconf = new org.hbase.async.Config();
+        clientconf.overrideConfig("hbase.zookeeper.quorum", PROPS_CONFIGS.getProperty("hbase.zookeeper.quorum"));
+        clientconf.overrideConfig("hbase.rpcs.batch.size", PROPS_CONFIGS.getProperty("hbase.rpcs.batch.size"));
+
+        HBaseClient client = globalFunctions.getClient(clientconf);
+        GetRequest getUserRequest = new GetRequest(PROPS_CONFIGS.getProperty("hbase.usertable").getBytes(), uuid.getBytes(), "technicalinfo".getBytes());
+        try {
+            final ArrayList<KeyValue> userkvs = client.get(getUserRequest).joinUninterruptibly();
+            final barlusUser User = new barlusUser(userkvs);
+            users.put(User.getId().toString(), User);
+            return User;
+        } catch (Exception ex) {
+            LOGGER.error("ERROR: " + globalFunctions.stackTrace(ex));
         }
-        users = UserList.toArray(new String[UserList.size()]);
-        Arrays.sort(users);
-        Arrays.sort(users, Collections.reverseOrder());
+
+        return null;
+    }
+
+    public static boolean initUsers() {
+        Config clientconf = new org.hbase.async.Config();
+        clientconf.overrideConfig("hbase.zookeeper.quorum", PROPS_CONFIGS.getProperty("hbase.zookeeper.quorum"));
+        clientconf.overrideConfig("hbase.rpcs.batch.size", PROPS_CONFIGS.getProperty("hbase.rpcs.batch.size"));
+
+        HBaseClient client = globalFunctions.getClient(clientconf);
+//        Configuration config = HBaseConfiguration.create();
+//        config.clear();
+//        config.set("hbase.zookeeper.quorum", PROPS_CONFIGS.getProperty("zookeeper.quorum"));
+//        config.set("hbase.zookeeper.property.clientPort", PROPS_CONFIGS.getProperty("zookeeper.clientPort"));
+        ArrayList<String> UserList;
+//        UserList = new ArrayList<>();
+//        try (Connection connection = ConnectionFactory.createConnection(config)) {
+//            TableName tableName = TableName.valueOf(PROPS_CONFIGS.getProperty("hbase.usertable"));
+//            try (Table table = connection.getTable(tableName)) {
+//                SingleColumnValueFilter filter = new SingleColumnValueFilter(
+//                        Bytes.toBytes("technicalinfo"),
+//                        Bytes.toBytes("active"),
+//                        CompareFilter.CompareOp.NOT_EQUAL,
+//                        new BinaryComparator(Bytes.toBytes(Boolean.FALSE)));
+//                filter.setFilterIfMissing(false);
+//                Scan scan1 = new Scan();
+//                scan1.setFilter(filter);
+//                try (ResultScanner scanner1 = table.getScanner(scan1)) {
+//                    for (Result res : scanner1) {
+//                        UserList.add(new String(res.getRow()));
+//                    }
+//                } catch (Exception e) {
+//                    LOGGER.error("ERROR In get Scanner " + globalFunctions.stackTrace(e));
+//                    return false;
+//                }
+//            } catch (Exception e) {
+//                LOGGER.error("ERROR In get Table " + globalFunctions.stackTrace(e));
+//                return false;
+//            }
+//        } catch (Exception e) {
+//            LOGGER.error("ERROR In Create Connection " + globalFunctions.stackTrace(e));
+//            return false;
+//        } 
+//        users = UserList.toArray(new String[UserList.size()]);
+//        Arrays.sort(users);
+//        Arrays.sort(users, Collections.reverseOrder());
         return true;
     }
 
@@ -123,8 +143,7 @@ public class AppConfiguration {
             boolean readusers = initUsers();
 
             // Init kafka Produser
-            if (!readusers)
-            {
+            if (!readusers) {
                 return false;
             }
             Properties props = new Properties();
@@ -186,15 +205,8 @@ public class AppConfiguration {
     /**
      * @return the users
      */
-    public static String[] getUsers() {
-        return users;
-    }
-
-    /**
-     * @param aUsers the users to set
-     */
-    public static void setUsers(String[] aUsers) {
-        users = aUsers;
+    public static ConcurrentMap<String, barlusUser> getUsers() {
+        return users.asMap();
     }
 
     /**

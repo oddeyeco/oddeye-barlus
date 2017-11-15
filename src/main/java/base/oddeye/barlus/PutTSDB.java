@@ -70,25 +70,46 @@ public class PutTSDB extends HttpServlet {
                 loggerTest.debug("uid =" + uid);
             }
             if ((uid != null) & (!uid.equals(""))) {
-
-                int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
+                barlusUser User;
+                if (AppConfiguration.getUsers().containsKey(uid)) {
+                    User = AppConfiguration.getUsers().get(uid);
+                } else {
+                    User = AppConfiguration.getUser(uid);
+                }
 
                 if (loggerTest.isDebugEnabled()) {
                     loggerTest.debug("msg =" + request.getParameter("data"));
                 }
-                if (idx > -1) {
-                    msg = request.getParameter("data");
+                if (User == null) {
+                    code = 406;
+                    Httpresponse = "\"FAILURE\",messge:\"NOT VALID UUID\"";
+                    PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" + uid + "IP:" + request.getHeader("X-Real-IP") + " data:" + request.getParameter("data"));
                 } else {
-                    AppConfiguration.initUsers();
-                    idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
-                    if (idx > -1) {
-                        msg = request.getParameter("data");
+                    if (User.isActive()) {
+                        if (User.getBalance() > 0) {
+                            msg = request.getParameter("data");
+                        } else {
+                            code = 402;
+                            Httpresponse = "\"FAILURE\",messge:\"insufficient funds on the account\"";
+                        }
                     } else {
-                        code = 424;
-                        Httpresponse = "\"FAILURE\",messge:\"NOT VALID UUID\"";
-                        PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" + uid + "IP:" + request.getHeader("X-Real-IP") + " data:" + request.getParameter("data"));
+                        code = 418;
+                        Httpresponse = "\"FAILURE\",messge:\"NOT ACTIVE UUID\"";
                     }
                 }
+//                if (idx > -1) {
+//                    msg = request.getParameter("data");
+//                } else {
+//                    AppConfiguration.initUsers();
+//                    idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
+//                    if (idx > -1) {
+//                        msg = request.getParameter("data");
+//                    } else {
+//                        code = 424;
+//                        Httpresponse = "\"FAILURE\",messge:\"NOT VALID UUID\"";
+//                        PutTSDB.logger.log(Level.ERROR, "NOT VALID UUID:" + uid + "IP:" + request.getHeader("X-Real-IP") + " data:" + request.getParameter("data"));
+//                    }
+//                }
             } else {
                 code = HttpServletResponse.SC_NOT_ACCEPTABLE;
                 Httpresponse = "\"FAILURE\",messge:\"EMPTY UUID\"";
@@ -114,18 +135,31 @@ public class PutTSDB extends HttpServlet {
                                     }
 
                                 } else {
-                                    ParseResult result = this.prepareJsonObject(json, uid, topic, request);
-                                    code = result.getCode();
-                                    if (!result.getMessage().isEmpty()) {
-                                        Httpresponse = result.getMessage();
+                                    if (json.isJsonObject()) {
+                                        ParseResult result = this.prepareJsonObject(json, uid, topic, request);
+                                        code = result.getCode();
+                                        if (!result.getMessage().isEmpty()) {
+                                            Httpresponse = result.getMessage();
+                                        }
+
+                                    } else {
+                                        code = 415;
+                                        Httpresponse = "\"FAILURE\",\"message\":\" NOT Valid Json \"";
+                                        PutTSDB.logger.log(Level.ERROR, "NOT Valid Json:" + msg);
                                     }
                                 }
                                 break;
                             case "2":
-                                ParseResult result = this.prepareJsonObjectV2(json, uid, topic, request);
-                                code = result.getCode();
-                                if (!result.getMessage().isEmpty()) {
-                                    Httpresponse = result.getMessage();
+                                if (json.isJsonObject()) {
+                                    ParseResult result = this.prepareJsonObjectV2(json, uid, topic, request);
+                                    code = result.getCode();
+                                    if (!result.getMessage().isEmpty()) {
+                                        Httpresponse = result.getMessage();
+                                    }
+                                } else {
+                                    code = 415;
+                                    Httpresponse = "\"FAILURE\",\"message\":\"NOT Valid Json \"";
+                                    PutTSDB.logger.log(Level.ERROR, "NOT Valid Json:" + msg);
                                 }
                                 break;
                             default:
@@ -142,7 +176,7 @@ public class PutTSDB extends HttpServlet {
                     }
 
                 } else {
-                    code = 424;
+                    code = 422;
                     Httpresponse = "\"FAILURE\",\"message\":\"Empty Data\"";
                 }
             }
@@ -259,7 +293,7 @@ public class PutTSDB extends HttpServlet {
                     Metric.getAsJsonObject().get("value").getAsDouble();
                 } catch (Exception e) {
                     PutTSDB.logger.log(Level.ERROR, "value not Double in input " + Metric.toString());
-                    return new ParseResult(411, "{\"message\":\"value not Double in input\"}");                    
+                    return new ParseResult(411, "{\"message\":\"value not Double in input\"}");
                 }
 
                 Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);

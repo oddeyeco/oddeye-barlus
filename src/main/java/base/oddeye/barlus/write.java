@@ -54,23 +54,23 @@ public class write extends HttpServlet {
 
             msg = "";
             Map JsonMap;
-            if ((uid != null)&(!"".equals(uid))) {
-                int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
-                if (idx > -1) {
-                    msg = request.getParameter("data");
-                } else {
-                    AppConfiguration.initUsers();
-                    idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
-                    if (idx > -1) {
-                        msg = request.getParameter("data");
-                    } else {
-                        Httpresponse = "UUID Not exist User count = " + AppConfiguration.getUsers().length;
-                    }
-                }
-            } else {
-                msg = "";
-                Httpresponse = "UUID is empty";
-            }
+//            if ((uid != null)&(!"".equals(uid))) {
+//                int idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
+//                if (idx > -1) {
+//                    msg = request.getParameter("data");
+//                } else {
+//                    AppConfiguration.initUsers();
+//                    idx = Arrays.binarySearch(AppConfiguration.getUsers(), uid, Collections.reverseOrder());
+//                    if (idx > -1) {
+//                        msg = request.getParameter("data");
+//                    } else {
+//                        Httpresponse = "UUID Not exist User count = " + AppConfiguration.getUsers().length;
+//                    }
+//                }
+//            } else {
+//                msg = "";
+//                Httpresponse = "UUID is empty";
+//            }
             if (!"".equals(msg)) {
 
                 Function1<String, Object> f = new AbstractFunction1<String, Object>() {
