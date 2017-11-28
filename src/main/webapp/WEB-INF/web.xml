@@ -25,8 +25,10 @@
         <url-pattern>/put/tsdb</url-pattern>
     </servlet-mapping>
     <session-config>
-        <session-timeout>
-            30
-        </session-timeout>
+        <session-timeout>1</session-timeout>
+        <cookie-config>
+            <max-age>0</max-age>
+        </cookie-config>
+        <tracking-mode>URL</tracking-mode>
     </session-config>
 </web-app>
