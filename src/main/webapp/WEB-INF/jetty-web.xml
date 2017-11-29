@@ -3,8 +3,8 @@
 <Configure class="org.eclipse.jetty.webapp.WebAppContext">
     <Set name="contextPath">/oddeye-barlus</Set>  
       <Get name="sessionHandler">
-             <Set name="SessionDataStoreFactory">
-                     <New class="org.eclipse.jetty.server.session.NullSessionDataStoreFactory"></New>
+             <Set name="SessionDataStore">
+                     <New class="org.eclipse.jetty.server.session.NullSessionDataStore"></New>
                  </Set>
           </Get>    
 </Configure>
