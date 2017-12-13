@@ -217,6 +217,10 @@ public class PutTSDB extends HttpServlet {
                 if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("group") == null) {
                     PutTSDB.logger.log(Level.INFO, "group not exist in input " + Metric.toString());
                 }
+                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().size() > 7) {
+                    PutTSDB.logger.log(Level.ERROR, "tags not json in input " + Metric.toString());
+                    return new ParseResult(411, "{\"message\":\"Too many tags: " + Metric.getAsJsonObject().get("tags").getAsJsonObject().size() + " maximum allowed: 7\"}");
+                }
                 Metric.getAsJsonObject().get("tags").getAsJsonObject().addProperty("UUID", uid);
             } else {
                 PutTSDB.logger.log(Level.ERROR, "tags not json in input " + Metric.toString());
@@ -269,7 +273,10 @@ public class PutTSDB extends HttpServlet {
                     PutTSDB.logger.log(Level.ERROR, "timestamp not exist in input " + Metric.toString());
                     return new ParseResult(411, "{\"message\":\"timestamp not exist in input\"}");
                 }
-
+                if (Metric.getAsJsonObject().get("tags").getAsJsonObject().size() > 7) {
+                    PutTSDB.logger.log(Level.ERROR, "tags not json in input " + Metric.toString());
+                    return new ParseResult(411, "{\"message\":\"Too many tags: " + Metric.getAsJsonObject().get("tags").getAsJsonObject().size() + " maximum allowed: 7\"}");
+                }
                 if (Metric.getAsJsonObject().get("metric") == null) {
                     PutTSDB.logger.log(Level.ERROR, "metric name not exist in input " + Metric.toString());
                     return new ParseResult(411, "{\"message\":\"metric name not exist in input\"}");
@@ -334,6 +341,12 @@ public class PutTSDB extends HttpServlet {
                         }
                         if (Metric.getAsJsonObject().get("tags").getAsJsonObject().get("group") == null) {
                             PutTSDB.logger.log(Level.INFO, "group not exist in input " + jsonResult.toString());
+                        }
+                        if (Metric.getAsJsonObject().get("tags").getAsJsonObject().size() > 7) {
+                            PutTSDB.logger.log(Level.ERROR, "tags not json in input " + Metric.toString());
+                            jsonResult.remove(i);
+                            checkerrors = checkerrors + "{\"message\":\"Too many tags: " + Metric.getAsJsonObject().get("tags").getAsJsonObject().size() + " maximum allowed: 7\"},";                            
+//                            return new ParseResult(411, "{\"message\":\"Too many tags: " + Metric.getAsJsonObject().get("tags").getAsJsonObject().size() + " maximum allowed: 7\"}");
                         }
                         if (Metric.getAsJsonObject().get("timestamp") == null) {
                             PutTSDB.logger.log(Level.ERROR, "timestamp not exist in input " + jsonResult.toString());
