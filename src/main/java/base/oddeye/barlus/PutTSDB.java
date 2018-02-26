@@ -380,8 +380,9 @@ public class PutTSDB extends HttpServlet {
                         }
                         try {
                             Metric.getAsJsonObject().get("value").getAsDouble();
-                        } catch (Exception e) {
-                            PutTSDB.logger.log(Level.ERROR, "value not Double in input " + jsonResult.toString());
+                        } catch (Exception e) {                            
+                            PutTSDB.logger.log(Level.ERROR, "value not Double in input " + Metric.toString());
+//                            PutTSDB.logger.log(Level.ERROR, "In JSON " + jsonResult.toString());
                             jsonResult.remove(i);
                             checkerrors = checkerrors + "{\"message\":\"value not Double in input\"},";
                             i--;
