@@ -27,6 +27,7 @@ public class PutTSDB extends HttpServlet {
 
     public static final Logger logger = Logger.getLogger(PutTSDB.class.getName());
     public static final Logger loggerTest = Logger.getLogger("test");
+    private static String allowSpecialChars = "";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -257,6 +258,28 @@ public class PutTSDB extends HttpServlet {
         return new ParseResult(HttpServletResponse.SC_OK, "");
     }
 
+    public static void validateString(final String what, final String s) {
+        if (s == null) {
+            throw new IllegalArgumentException("Invalid " + what + ": null");
+        } else if ("".equals(s)) {
+            throw new IllegalArgumentException("Invalid " + what + ": empty string");
+        }
+        final int n = s.length();
+        for (int i = 0; i < n; i++) {
+            final char c = s.charAt(i);
+            if (!(('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
+                    || ('0' <= c && c <= '9') || c == '-' || c == '_' || c == '.'
+                    || c == '/' || Character.isLetter(c) || isAllowSpecialChars(c))) {
+                throw new IllegalArgumentException("Invalid " + what
+                        + " (\"" + s + "\"): illegal character: " + c);
+            }
+        }
+    }
+
+    static boolean isAllowSpecialChars(char character) {
+        return allowSpecialChars.indexOf(character) != -1;
+    }
+
     private ParseResult prepareJsonObject(JsonElement Metric, String uid, String topic, HttpServletRequest request) {
         if (Metric.getAsJsonObject().get("tags") != null) {
             if (!Metric.getAsJsonObject().get("tags").isJsonPrimitive()) {
@@ -280,6 +303,13 @@ public class PutTSDB extends HttpServlet {
                 if (Metric.getAsJsonObject().get("metric") == null) {
                     PutTSDB.logger.log(Level.ERROR, "metric name not exist in input " + Metric.toString());
                     return new ParseResult(411, "{\"message\":\"metric name not exist in input\"}");
+                } else {
+                    try {
+                        validateString("metric", Metric.getAsJsonObject().get("metric").getAsString());
+                    } catch (Exception e) {
+                        return new ParseResult(411, "{\"message\":\"" + e.toString() + "\"}");
+                    }
+
                 }
 //                if (Metric.getAsJsonObject().get("value") == null) {
 //                    PutTSDB.logger.log(Level.ERROR, "value not exist in input " + Metric.toString());
@@ -363,7 +393,17 @@ public class PutTSDB extends HttpServlet {
                             checkerrors = checkerrors + "{\"message\":\"metric not exist in input\"},";
                             i--;
                             continue;
+                        } else {
+                            try {
+                                validateString("metric", Metric.getAsJsonObject().get("metric").getAsString());
+                            } catch (Exception e) {                                
+                            jsonResult.remove(i);
+                            checkerrors = checkerrors + "{\"message\":\""+e.toString()+"\"},";
+                            i--;
+                            continue;                                
+                            }
                         }
+
                         if (Metric.getAsJsonObject().get("value") == null) {
                             PutTSDB.logger.log(Level.ERROR, "value not exist in input " + jsonResult.toString());
                             jsonResult.remove(i);
@@ -380,7 +420,7 @@ public class PutTSDB extends HttpServlet {
                         }
                         try {
                             Metric.getAsJsonObject().get("value").getAsDouble();
-                        } catch (Exception e) {                            
+                        } catch (Exception e) {
                             PutTSDB.logger.log(Level.ERROR, "value not Double in input " + Metric.toString());
 //                            PutTSDB.logger.log(Level.ERROR, "In JSON " + jsonResult.toString());
                             jsonResult.remove(i);
