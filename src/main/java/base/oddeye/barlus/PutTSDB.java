@@ -233,8 +233,9 @@ public class PutTSDB extends HttpServlet {
         }
 
         if (Metric.getAsJsonObject().get("timestamp") == null) {
-            PutTSDB.logger.log(Level.ERROR, "timestamp not exist in input " + Metric.toString());
-            return new ParseResult(411, "{\"message\":\"timestamp not exist in input\"}");
+            Metric.getAsJsonObject().addProperty("timestamp",System.currentTimeMillis());
+//            PutTSDB.logger.log(Level.ERROR, "timestamp not exist in input " + Metric.toString());
+//            return new ParseResult(411, "{\"message\":\"timestamp not exist in input\"}");
         }
 
         Metric.getAsJsonObject().addProperty("version", 2);
