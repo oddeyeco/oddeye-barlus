@@ -233,7 +233,7 @@ public class PutTSDB extends HttpServlet {
         }
 
         if (Metric.getAsJsonObject().get("timestamp") == null) {
-            Metric.getAsJsonObject().addProperty("timestamp",System.currentTimeMillis());
+            Metric.getAsJsonObject().addProperty("timestamp",System.currentTimeMillis()/1000);
 //            PutTSDB.logger.log(Level.ERROR, "timestamp not exist in input " + Metric.toString());
 //            return new ParseResult(411, "{\"message\":\"timestamp not exist in input\"}");
         }
@@ -294,7 +294,7 @@ public class PutTSDB extends HttpServlet {
                     PutTSDB.logger.log(Level.INFO, "group not exist in input " + Metric.toString());
                 }
                 if (Metric.getAsJsonObject().get("timestamp") == null) {
-                    Metric.getAsJsonObject().addProperty("timestamp",System.currentTimeMillis());
+                    Metric.getAsJsonObject().addProperty("timestamp",System.currentTimeMillis()/1000);
 //                    PutTSDB.logger.log(Level.ERROR, "timestamp not exist in input " + Metric.toString());
 //                    return new ParseResult(411, "{\"message\":\"timestamp not exist in input\"}");
                 }
@@ -381,7 +381,7 @@ public class PutTSDB extends HttpServlet {
                             return new ParseResult(411, "{\"message\":\"Too many tags: " + Metric.getAsJsonObject().get("tags").getAsJsonObject().size() + " maximum allowed: 7\"}");
                         }
                         if (Metric.getAsJsonObject().get("timestamp") == null) {
-                            Metric.getAsJsonObject().addProperty("timestamp",System.currentTimeMillis());
+                            Metric.getAsJsonObject().addProperty("timestamp",System.currentTimeMillis()/1000);
 //                            PutTSDB.logger.log(Level.ERROR, "timestamp not exist in input " + jsonResult.toString());
 //                            jsonResult.remove(i);
 //                            checkerrors = checkerrors + "{\"message\":\"timestamp not exist in input\"},";
