@@ -5,7 +5,6 @@
  */
 package base.oddeye.barlus;
 
-import co.oddeye.core.OddeyeHttpURLConnection;
 import co.oddeye.core.globalFunctions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -17,7 +16,6 @@ import javax.servlet.ServletContext;
 //import kafka.javaapi.producer.Producer;
 //import kafka.producer.ProducerConfig;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
